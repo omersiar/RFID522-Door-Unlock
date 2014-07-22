@@ -16,7 +16,7 @@
  * "PICC" short for Proximity Integrated Circuit Card (RFID Tags)
  */
  
-#include <EEPROM.h>  // We are going to read and write PICC's UID to EEPROM
+#include <EEPROM.h>  // We are going to read and write PICC's UID from/to EEPROM
 #include <SPI.h>      // RC522 Module uses SPI protocol
 #include <MFRC522.h>   // Library for Mifare RC522 Devices
 
@@ -54,7 +54,7 @@
  * here > http://makecourse.weebly.com/week10segment1.html
  * If you serious about coding and security
  * you should really check Mıfare's datasheet
- * We going to use completely INSECURE way to
+ * We are going to use completely INSECURE way to
  * Unlock a door. Also there are always security
  * issues if there is a "LOCK" actually.
  *
@@ -76,7 +76,7 @@ MFRC522 mfrc522(SS_PIN, RST_PIN);	// Create MFRC522 instance.
 void setup() {
   
   /* 
-   * Pin Configuration
+   * Arduino Pin Configuration
    */
   pinMode(redLed, OUTPUT);
   pinMode(greenLed, OUTPUT);
@@ -131,11 +131,11 @@ void getUID() {
    
     rfidUID = "";      // Emptying String
     for (byte i = 0; i < mfrc522.uid.size; i++) {  // For size of "uid.size" we are going to convert uid.uidByte to string
-    rfidUID += String(mfrc522.uid.uidByte[i] < 0x10 ? "0" : "");
-    rfidUID += String(mfrc522.uid.uidByte[i], HEX);
+    	rfidUID += String(mfrc522.uid.uidByte[i] < 0x10 ? "0" : "");
+    	rfidUID += String(mfrc522.uid.uidByte[i], HEX);
     }
     
-    Serial.println("Scanned PICC UID:");
+    Serial.println("Scanned PICC's UID:");
     Serial.println(rfidUID);
     Serial.println("");
     
@@ -177,8 +177,10 @@ void normalModeOn () {
 }  
 void checkUID() {
   
-  rfidUID = "";
+  rfidUID = "";  // Emptying String
   getUID();
+  
+  
   
   
 }
