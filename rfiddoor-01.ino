@@ -1,21 +1,37 @@
-/* Libraries we are going to use
+/* Arduino RC522 RFID Door Unlocker
+ * 
+ * Credits
+ * Idea based on PCMOFO's project
+ * http://www.instructables.com/id/Arduino-RFID-Door-Lock/
  *
+ * MFRC522 Library from miguelbalboa
+ * https://github.com/miguelbalboa/rfid
+ * 
+ * And helpful code converting UIDs to String from maGo
+ * http://stackoverflow.com/questions/22646357/how-to-get-picc-serial-number-on-arduino
+ *
+ * I have not personally asked for permission to use code from them
+ * or how to license this work.
+ * 
+ * "PICC" short for Proximity Integrated Circuit Card (RFID Tags)
  */
  
-#include <EEPROM.h>
-#include <SPI.h>
-#include <MFRC522.h>
+#include <EEPROM.h>  // We are going to read and write PICC's UID to EEPROM
+#include <SPI.h>      // RC522 Module uses SPI protocol
+#include <MFRC522.h>   // Library for Mifare RC522 Devices
 
 // #include <Servo.h>
 
-/* Servos can lock and unlock door
+/* Servos can lock and unlock door locks
  * There are examples out there
+ * May be we want to use a servo
  */
 
 
-/* For visualizing whats going on we need some 
- * leds and to control door lock a relay(
- * or some other hardware) 
+/* For visualizing whats going on hardware
+ * we need some leds and 
+ * to control door lock a relay 
+ * (or some other hardware) 
  * 
  */
  
@@ -45,7 +61,7 @@
  */
  
 String rfidUID = "";           // We are going to store scanned PICC's UID
-String masterUID = "479c85b5"; // Define master PICC's UID
+String masterUID = "12334567"; // Define master PICC's UID
 
 
 /* We need to define MFRC522's pins and create instance
@@ -59,8 +75,8 @@ MFRC522 mfrc522(SS_PIN, RST_PIN);	// Create MFRC522 instance.
 
 void setup() {
   
-  /* pin config.
-   * 
+  /* 
+   * Pin Configuration
    */
   pinMode(redLed, OUTPUT);
   pinMode(greenLed, OUTPUT);
@@ -68,9 +84,9 @@ void setup() {
   pinMode(relay, OUTPUT);
   
   /*
-   * Protocol Config
+   * Protocol Configuration
    */
-  Serial.begin(9600);	 // Initialize serial communications with the PC
+  Serial.begin(9600);	 // Initialize serial communications with PC
   SPI.begin();           // MFRC522 Hardware uses SPI protocol
   mfrc522.PCD_Init();    // Initialize MFRC522 Hardware
   Serial.println("##### RFID Door Unlocker #####");
@@ -80,14 +96,14 @@ void setup() {
 
 void loop() {
  
- normalModeOn();
- getUID();
+ normalModeOn();  // In normal operating mode blue led on
+ getUID();        // If there is a PICC scanned get UID first
  
- if (rfidUID == masterUID) // Compare UID
+ if (rfidUID == masterUID) // Compare scanned UID with Master PICC's UID 
  { 
    Serial.println("Oh, Hello Master");
-   programModeOn();
-   programMode();
+   programModeOn();   // In program mode leds cycles trough red green blue
+   programMode();     // Calling program mode 
  }  
  else {
  checkUID();    // Check if we know this UID or not
@@ -97,9 +113,10 @@ void loop() {
 
 void getUID() {
   
-  /* Getting ready for Reading PICCs
-   *
+  /* 
+   * Getting ready for Reading PICCs
    */
+   
   if ( ! mfrc522.PICC_IsNewCardPresent()) {
 		return;
 	}
@@ -107,10 +124,11 @@ void getUID() {
   if ( ! mfrc522.PICC_ReadCardSerial()) {
 		return;
 	}
-  // Now we are ready to read PICCs
-
-  
-    
+	
+  /*
+   *  Now we are ready to read PICCs
+   */
+   
     rfidUID = "";      // Emptying String
     for (byte i = 0; i < mfrc522.uid.size; i++) {  // For size of "uid.size" we are going to convert uid.uidByte to string
     rfidUID += String(mfrc522.uid.uidByte[i] < 0x10 ? "0" : "");
@@ -129,6 +147,8 @@ void getUID() {
 void programMode() {
   rfidUID = "";     // Emptying String
   Serial.println("Entered Program Mode");
+  Serial.println("");
+  Serial.println("Scan a PICC");
 
 }
 
@@ -154,7 +174,7 @@ void programModeOn() {
 void normalModeOn () {
   
   
-  
+}  
 void checkUID() {
   
   rfidUID = "";
@@ -165,7 +185,7 @@ void checkUID() {
 
 void unlockDoor() {
   /* How we unlock the door ?
-   * Up to you 
+   * 
    */
   
    
