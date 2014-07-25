@@ -35,8 +35,10 @@
  * we need some leds and 
  * to control door lock a relay 
  * (or some other hardware) 
- * 
+ * Used common anode led,digitalWriting HIGH turns off led
  */
+
+
 
 #define redLed 5
 #define greenLed 8
@@ -45,9 +47,7 @@
 
 //define buzzer ? maybe we want that
 
-/* We need to define some boolean ???
- * and string ??? bytes ??
- *
+/* 
  * I think it is not secure to only use PICC's UID
  * to verify PICC's user who wants to unlock a door.
  *
@@ -73,8 +73,7 @@ boolean programMode = false;
 byte storedCard[6];   // Stores an ID read from EEPROM
 byte readCard[6];           // We are going to store scanned PICC's UID
 
-byte masterCard[6] = {
-  0x47,0x9c,0x85,0xb5}; // Define master PICC's UID
+byte masterCard[6] = {0x47,0x9c,0x85,0xb5}; // Define master PICC's UID
 
 
 /* We need to define MFRC522's pins and create instance
@@ -134,7 +133,6 @@ void loop ()
     if ( findID(readCard) )
     {
       Serial.println("I know this PICC, so removing");
-      deleteModeOn();
       delay(1000);
       deleteID(readCard);
       Serial.println("Removed- Exiting Program Mode");
@@ -150,18 +148,18 @@ void loop ()
     if ( isMaster(readCard) ) {
       programMode = true;
       Serial.println("Hello Master - Entered Program Mode");
-      Serial.println("Scan a PICC to add or remove to EEPROM");
+      Serial.println("Scan a PICC to ADD or REMOVE");
     }
     else {
 
       if ( findID(readCard) ) // If not, see if the card is in the EEPROM
       {
         Serial.println("Welcome, You shall pass");
-        openDoor(2); // If it is, open the door lock
+        openDoor(1); // If it is, open the door lock for 1 second
       }
       else
       {
-        Serial.println("I do not know you, go away");
+        Serial.println("You shall not pass");
         failed(); // If not, show that the ID was not valid
       }
     }
@@ -208,30 +206,31 @@ int getID() {
 ///////////////////////////////////////// Program Mode Leds ///////////////////////////////////
 void programModeOn() {
 
-  digitalWrite(redLed, LOW); // Make sure blue LED is off
+  digitalWrite(redLed, HIGH); // Make sure blue LED is off
   digitalWrite(greenLed, LOW); // Make sure blue LED is off
   digitalWrite(blueLed, HIGH); // Make sure green LED is on
   delay(200);
 
-  digitalWrite(redLed, LOW); // Make sure blue LED is off
+  digitalWrite(redLed, HIGH); // Make sure blue LED is off
   digitalWrite(greenLed, HIGH); // Make sure blue LED is on
   digitalWrite(blueLed, LOW); // Make sure green LED is off
   delay(200);
 
-  digitalWrite(redLed, HIGH); // Make sure blue LED is on
-  digitalWrite(greenLed, LOW); // Make sure blue LED is off
-  digitalWrite(blueLed, LOW); // Make sure green LED is off
+  digitalWrite(redLed, LOW); // Make sure blue LED is on
+  digitalWrite(greenLed, HIGH); // Make sure blue LED is off
+  digitalWrite(blueLed, HIGH); // Make sure green LED is off
   delay(200);
 
 }
 
+
 ///////////////////////////////////////// Normal Mode Leds  ///////////////////////////////////
 void normalModeOn () {
 
-  digitalWrite(blueLed, HIGH); // Power pin ON and ready to read card
-  digitalWrite(redLed, LOW); // Make sure Green LED is off
-  digitalWrite(greenLed, LOW); // Make sure Red LED is off
-  digitalWrite(relay, LOW); // Make sure Door is Locked 
+  digitalWrite(blueLed, LOW); // Power pin ON and ready to read card
+  digitalWrite(redLed, HIGH); // Make sure Green LED is off
+  digitalWrite(greenLed, HIGH); // Make sure Red LED is off
+  digitalWrite(relay, HIGH); // Make sure Door is Locked 
 
 }  
 
@@ -416,24 +415,24 @@ void successWrite()
 {
   Serial.end();
 
-  digitalWrite(blueLed, LOW); // Make sure blue LED is off
-  digitalWrite(redLed, LOW); // Make sure red LED is off
+  digitalWrite(blueLed, HIGH); // Make sure blue LED is off
+  digitalWrite(redLed, HIGH); // Make sure red LED is off
+  digitalWrite(greenLed, HIGH); // Make sure green LED is on
+  delay(200);
+
   digitalWrite(greenLed, LOW); // Make sure green LED is on
   delay(200);
 
-  digitalWrite(greenLed, HIGH); // Make sure green LED is on
+  digitalWrite(greenLed, HIGH); // Make sure green LED is off
   delay(200);
 
-  digitalWrite(greenLed, LOW); // Make sure green LED is off
+  digitalWrite(greenLed, LOW); // Make sure green LED is on
   delay(200);
 
-  digitalWrite(greenLed, HIGH); // Make sure green LED is on
+  digitalWrite(greenLed, HIGH); // Make sure green LED is off
   delay(200);
 
-  digitalWrite(greenLed, LOW); // Make sure green LED is off
-  delay(200);
-
-  digitalWrite(greenLed, HIGH); // Make sure green LED is on
+  digitalWrite(greenLed, LOW); // Make sure green LED is on
   delay(200);
 
   Serial.begin(9600);
@@ -445,24 +444,24 @@ void failedWrite()
 {
   Serial.end();
 
-  digitalWrite(blueLed, LOW); // Make sure blue LED is off
+  digitalWrite(blueLed, HIGH); // Make sure blue LED is off
+  digitalWrite(redLed, HIGH); // Make sure red LED is on
+  digitalWrite(greenLed, HIGH); // Make sure green LED is off
+  delay(200);
+
   digitalWrite(redLed, LOW); // Make sure red LED is on
-  digitalWrite(greenLed, LOW); // Make sure green LED is off
   delay(200);
 
-  digitalWrite(redLed, HIGH); // Make sure red LED is on
+  digitalWrite(redLed, HIGH); // Make sure red LED is off
   delay(200);
 
-  digitalWrite(redLed, LOW); // Make sure red LED is off
+  digitalWrite(redLed, LOW); // Make sure red LED is on
   delay(200);
 
-  digitalWrite(redLed, HIGH); // Make sure red LED is on
+  digitalWrite(redLed, HIGH); // Make sure red LED is off
   delay(200);
 
-  digitalWrite(redLed, LOW); // Make sure red LED is off
-  delay(200);
-
-  digitalWrite(redLed, HIGH); // Make sure red LED is on
+  digitalWrite(redLed, LOW); // Make sure red LED is on
   delay(200);
 
   Serial.begin(9600); 
@@ -474,12 +473,9 @@ void successDelete()
 {
   Serial.end();
 
-  digitalWrite(blueLed, LOW); // Make sure blue LED is off
-  digitalWrite(redLed, LOW); // Make sure red LED is off
-  digitalWrite(greenLed, LOW); // Make sure green LED is on
-  delay(200);
-
   digitalWrite(blueLed, HIGH); // Make sure blue LED is off
+  digitalWrite(redLed, HIGH); // Make sure red LED is off
+  digitalWrite(greenLed, HIGH); // Make sure green LED is on
   delay(200);
 
   digitalWrite(blueLed, LOW); // Make sure blue LED is off
@@ -492,6 +488,9 @@ void successDelete()
   delay(200);
 
   digitalWrite(blueLed, HIGH); // Make sure blue LED is off
+  delay(200);
+
+  digitalWrite(blueLed, LOW); // Make sure blue LED is off
   delay(200);
 
   Serial.begin(9600);
@@ -505,19 +504,6 @@ boolean isMaster( byte test[] )
     return false;
 } 
 
-///////////////////////////////////////// Delete Mode Leds   ///////////////////////////////////
-void deleteModeOn()
-{
-  digitalWrite(blueLed, LOW); // Make sure blue LED is off
-  digitalWrite(redLed, HIGH); // Make sure red LED is on
-  digitalWrite(greenLed, LOW); // Make sure green LED is off
-  delay(200);
-
-  digitalWrite(blueLed, HIGH); // Make sure blue LED is on
-  digitalWrite(redLed, LOW); // Make sure red LED is off
-  digitalWrite(greenLed, LOW); // Make sure green LED is off
-  delay(200);
-}
 
 ///////////////////////////////////////// Unlock Door   ///////////////////////////////////
 void openDoor( int setDelay )
@@ -527,9 +513,9 @@ void openDoor( int setDelay )
 
   Serial.end();
 
-  digitalWrite(blueLed, LOW); // Turn off blue LED
-  digitalWrite(redLed, LOW); // Turn off red LED
-  digitalWrite(greenLed, HIGH); // Turn on green LED
+  digitalWrite(blueLed, HIGH); // Turn off blue LED
+  digitalWrite(redLed, HIGH); // Turn off red LED
+  digitalWrite(greenLed, LOW); // Turn on green LED
   digitalWrite(relay, HIGH); // Unlock door!
 
   delay(setDelay); // Hold door lock open for 2 seconds
@@ -538,7 +524,7 @@ void openDoor( int setDelay )
 
   delay(setDelay); // Hold green LED om for 2 more seconds
 
-  digitalWrite(greenLed, LOW);	// Turn off green LED
+  digitalWrite(greenLed, HIGH);	// Turn off green LED
 
   Serial.begin(9600);
 }
@@ -548,11 +534,11 @@ void failed()
 {
   Serial.end();
 
-  digitalWrite(greenLed, LOW); // Make sure green LED is off
-  digitalWrite(blueLed, LOW); // Make sure blue LED is off
+  digitalWrite(greenLed, HIGH); // Make sure green LED is off
+  digitalWrite(blueLed, HIGH); // Make sure blue LED is off
 
   // Blink red fail LED 3 times to indicate failed key
-  digitalWrite(redLed, HIGH); // Turn on red LED
+  digitalWrite(redLed, LOW); // Turn on red LED
   delay(1200); 
   Serial.begin(9600);
 }
