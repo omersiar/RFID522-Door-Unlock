@@ -144,7 +144,7 @@ void loop ()
       Serial.println("Added - Exiting Program Mode");
     }
   }
-  else {  // Normal MODE
+  else { 
     if ( isMaster(readCard) ) {
       programMode = true;
       Serial.println("Hello Master - Entered Program Mode");
@@ -256,7 +256,7 @@ void readID( int number ) {
 }
 
 
-///////////////////////////////////////// Add UID to EEPROM   ///////////////////////////////////
+///////////////////////////////////////// Add ID to EEPROM   ///////////////////////////////////
 void writeID( byte a[] ) {
 
   if ( !findID( a ) ) // Before we write to the EEPROM, check to see if we have seen this card before!
