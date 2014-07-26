@@ -113,21 +113,17 @@ void setup() {
 
 void loop ()
 {
-  int successRead;
-
-  // this block is only to show to the user the mode
+  int successRead;     // this block is only to show to the user the mode
   if (programMode) {
-    programModeOn(); // Program Mode cycles through RGB waiting to read a new card      
+    programModeOn();   // Program Mode cycles through RGB waiting to read a new card      
   }
   else {
     normalModeOn(); // Normal mode, blue Power LED is on, all others are off
   }
-
   do {
     successRead = getID(); // Get the ID, sets readCard = to the read ID
   } 
   while (!successRead); //the program will not go further while you not get a successful read
-
     if (programMode) {
     programMode = false;  // next time will enter in normal mode
     if ( findID(readCard) )
