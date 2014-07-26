@@ -30,15 +30,12 @@
  * May be we want to use a servo
  */
 
-
 /* For visualizing whats going on hardware
  * we need some leds and
  * to control door lock a relay
  * (or some other hardware)
  * Used common anode led,digitalWriting HIGH turns off led
  */
-
-
 
 #define redLed 5
 #define greenLed 8
@@ -68,13 +65,11 @@
  */
 
 boolean match = false; // initialize card match to false
-boolean programMode = false;
+boolean programMode = false; // initialize programming mode to false
 
 byte storedCard[6];   // Stores an ID read from EEPROM
-byte readCard[6];           // We are going to store scanned PICC's UID
-
-byte masterCard[6] = {0x47,0x9c,0x85,0xb5}; // Define master PICC's UID
-
+byte readCard[6];           // Stores scanned ID read from RFID Module
+byte masterCard[6] = {0x47,0x9c,0x85,0xb5}; // Define master PICC's UID Here
 
 /* We need to define MFRC522's pins and create instance
  * These pins for Uno, look MFRC522 Library for
@@ -85,10 +80,8 @@ byte masterCard[6] = {0x47,0x9c,0x85,0xb5}; // Define master PICC's UID
 #define RST_PIN 9
 MFRC522 mfrc522(SS_PIN, RST_PIN);	// Create MFRC522 instance.
 
-
 ///////////////////////////////////////// Setup ///////////////////////////////////
 void setup() {
-
     /*
      * Arduino Pin Configuration
      */
@@ -96,7 +89,6 @@ void setup() {
     pinMode(greenLed, OUTPUT);
     pinMode(blueLed, OUTPUT);
     pinMode(relay, OUTPUT);
-
     /*
      * Protocol Configuration
      */
@@ -108,9 +100,7 @@ void setup() {
     Serial.println("Waiting PICCs to bo scanned :)");
 }
 
-
 ///////////////////////////////////////// Main Loop ///////////////////////////////////
-
 void loop () {
     int successRead;     // this block is only to show to the user the mode
     if (programMode) {
@@ -128,13 +118,14 @@ void loop () {
 			if ( findID(readCard) ) {
 				Serial.println("I know this PICC, so removing");
 				delay(1000);
-				deleteID(readCard);
-				Serial.println("Removed- Exiting Program Mode");
+				deleteID(readCard);   // If scanned card is in EEPROM, delete it
+				Serial.println("Exiting Program Mode");
 			}
 			else {
 				Serial.println("I do not know this PICC, adding...");
-				writeID(readCard);
-				Serial.println("Added - Exiting Program Mode");
+				delay(1000);
+				writeID(readCard);  // If scanned card not in EEPROM add it
+				Serial.println("Exiting Program Mode");
 			}
 		}
     else {
@@ -157,77 +148,57 @@ void loop () {
 
 }
 
-
 ///////////////////////////////////////// Get PICC's UID ///////////////////////////////////
 int getID() {
-
     /*
      * Getting ready for Reading PICCs
      */
-
+	 
     if ( ! mfrc522.PICC_IsNewCardPresent()) {
         return 0;
     }
-
     if ( ! mfrc522.PICC_ReadCardSerial()) {
         return 0;
     }
-
     /*
      *  Now we are ready to read PICCs
      */
-
-
     Serial.println("Scanned PICC's UID:");
-    for (byte i = 0; i < mfrc522.uid.size; i++) {
+    for (byte i = 0; i < mfrc522.uid.size; i++) {  // for size of uid.size write uid.uidByte to readCard
         readCard[i] = mfrc522.uid.uidByte[i];
         Serial.print(readCard[i], HEX);
     }
     Serial.println("");
-
-    mfrc522.PICC_HaltA();
+    mfrc522.PICC_HaltA(); // Stop reading
     return 1;
-
 }
-
-
-
 
 ///////////////////////////////////////// Program Mode Leds ///////////////////////////////////
 void programModeOn() {
-
     digitalWrite(redLed, HIGH); // Make sure blue LED is off
-    digitalWrite(greenLed, LOW); // Make sure blue LED is off
-    digitalWrite(blueLed, HIGH); // Make sure green LED is on
+    digitalWrite(greenLed, LOW); // Make sure blue LED is on
+    digitalWrite(blueLed, HIGH); // Make sure green LED is off
     delay(200);
-
     digitalWrite(redLed, HIGH); // Make sure blue LED is off
-    digitalWrite(greenLed, HIGH); // Make sure blue LED is on
-    digitalWrite(blueLed, LOW); // Make sure green LED is off
+    digitalWrite(greenLed, HIGH); // Make sure blue LED is off
+    digitalWrite(blueLed, LOW); // Make sure green LED is on
     delay(200);
-
     digitalWrite(redLed, LOW); // Make sure blue LED is on
     digitalWrite(greenLed, HIGH); // Make sure blue LED is off
     digitalWrite(blueLed, HIGH); // Make sure green LED is off
     delay(200);
-
 }
 
-
-///////////////////////////////////////// Normal Mode Leds  ///////////////////////////////////
+//////////////////////////////////////// Normal Mode Leds  ///////////////////////////////////
 void normalModeOn () {
-
     digitalWrite(blueLed, LOW); // Power pin ON and ready to read card
     digitalWrite(redLed, HIGH); // Make sure Green LED is off
     digitalWrite(greenLed, HIGH); // Make sure Red LED is off
-    digitalWrite(relay, HIGH); // Make sure Door is Locked
-
+    digitalWrite(relay, LOW); // Make sure Door is Locked
 }
-
 
 //////////////////////////////////////// Read an ID from EEPROM //////////////////////////////
 void readID( int number ) {
-
     int start = (number * 5 ) - 4; // Figure out starting position
     //Serial.print("Start: ");
     //Serial.print(start);
@@ -245,10 +216,8 @@ void readID( int number ) {
     }
 }
 
-
 ///////////////////////////////////////// Add ID to EEPROM   ///////////////////////////////////
 void writeID( byte a[] ) {
-
     if ( !findID( a ) ) // Before we write to the EEPROM, check to see if we have seen this card before!
     {
         int num = EEPROM.read(0); // Get the numer of used spaces, position 0 stores the number of ID cards
@@ -277,7 +246,6 @@ void writeID( byte a[] ) {
     {
         failedWrite();
     }
-
 }
 
 ///////////////////////////////////////// Remove ID from EEPROM   ///////////////////////////////////
@@ -356,7 +324,6 @@ boolean checkTwo ( byte a[], byte b[] ) {
     }
 }
 
-
 ///////////////////////////////////////// Find Slot   ///////////////////////////////////
 int findIDSLOT( byte find[] ) {
     int count = EEPROM.read(0); // Read the first Byte of EEPROM that
@@ -394,141 +361,94 @@ boolean findID( byte find[] ) {
         {
             //Serial.print("No Match here.... \n");
         }
-
     }
     return false;
 }
 
 ///////////////////////////////////////// Write Success to EEPROM   ///////////////////////////////////
 // Flashes the green LED 3 times to indicate a successful write to EEPROM
-void successWrite()
-{
-    Serial.end();
-
+void successWrite() {
     digitalWrite(blueLed, HIGH); // Make sure blue LED is off
     digitalWrite(redLed, HIGH); // Make sure red LED is off
     digitalWrite(greenLed, HIGH); // Make sure green LED is on
     delay(200);
-
     digitalWrite(greenLed, LOW); // Make sure green LED is on
     delay(200);
-
     digitalWrite(greenLed, HIGH); // Make sure green LED is off
     delay(200);
-
     digitalWrite(greenLed, LOW); // Make sure green LED is on
     delay(200);
-
     digitalWrite(greenLed, HIGH); // Make sure green LED is off
     delay(200);
-
     digitalWrite(greenLed, LOW); // Make sure green LED is on
     delay(200);
-
-    Serial.begin(9600);
 }
 
 ///////////////////////////////////////// Write Failed to EEPROM   ///////////////////////////////////
 // Flashes the red LED 3 times to indicate a failed write to EEPROM
-void failedWrite()
-{
-    Serial.end();
-
+void failedWrite() {
     digitalWrite(blueLed, HIGH); // Make sure blue LED is off
-    digitalWrite(redLed, HIGH); // Make sure red LED is on
+    digitalWrite(redLed, HIGH); // Make sure red LED is off
     digitalWrite(greenLed, HIGH); // Make sure green LED is off
     delay(200);
-
     digitalWrite(redLed, LOW); // Make sure red LED is on
     delay(200);
-
     digitalWrite(redLed, HIGH); // Make sure red LED is off
     delay(200);
-
     digitalWrite(redLed, LOW); // Make sure red LED is on
     delay(200);
-
     digitalWrite(redLed, HIGH); // Make sure red LED is off
     delay(200);
-
     digitalWrite(redLed, LOW); // Make sure red LED is on
     delay(200);
-
     Serial.begin(9600);
 }
 
 ///////////////////////////////////////// Success Remove UID From EEPROM  ///////////////////////////////////
 // Flashes the blue LED 3 times to indicate a success delete to EEPROM
-void successDelete()
-{
-    Serial.end();
-
+void successDelete() {
     digitalWrite(blueLed, HIGH); // Make sure blue LED is off
     digitalWrite(redLed, HIGH); // Make sure red LED is off
-    digitalWrite(greenLed, HIGH); // Make sure green LED is on
+    digitalWrite(greenLed, HIGH); // Make sure green LED is off
     delay(200);
-
-    digitalWrite(blueLed, LOW); // Make sure blue LED is off
+    digitalWrite(blueLed, LOW); // Make sure blue LED is on
     delay(200);
-
     digitalWrite(blueLed, HIGH); // Make sure blue LED is off
     delay(200);
-
-    digitalWrite(blueLed, LOW); // Make sure blue LED is off
+    digitalWrite(blueLed, LOW); // Make sure blue LED is on
     delay(200);
-
     digitalWrite(blueLed, HIGH); // Make sure blue LED is off
     delay(200);
-
-    digitalWrite(blueLed, LOW); // Make sure blue LED is off
+    digitalWrite(blueLed, LOW); // Make sure blue LED is on
     delay(200);
-
-    Serial.begin(9600);
 }
+
 ///////////////////////////////////////// Check readCard is masterCard   ///////////////////////////////////
-boolean isMaster( byte test[] )
-{
+// Check to see if the ID passed is the master programing card
+boolean isMaster( byte test[] ) {
     if ( checkTwo( test, masterCard ) )
         return true;
     else
         return false;
 }
 
-
 ///////////////////////////////////////// Unlock Door   ///////////////////////////////////
-void openDoor( int setDelay )
-{
-
+void openDoor( int setDelay ) {
     setDelay *= 1000; // Sets delay in seconds
-
-    Serial.end();
-
     digitalWrite(blueLed, HIGH); // Turn off blue LED
-    digitalWrite(redLed, HIGH); // Turn off red LED
+    digitalWrite(redLed, HIGH); // Turn off red LED	
     digitalWrite(greenLed, LOW); // Turn on green LED
     digitalWrite(relay, HIGH); // Unlock door!
-
     delay(setDelay); // Hold door lock open for 2 seconds
-
     digitalWrite(relay, LOW); // Relock door
-
-    delay(setDelay); // Hold green LED om for 2 more seconds
-
+    delay(setDelay); // Hold green LED on for 2 more seconds
     digitalWrite(greenLed, HIGH);	// Turn off green LED
-
-    Serial.begin(9600);
 }
 
 ///////////////////////////////////////// Failed Access  ///////////////////////////////////
-void failed()
-{
-    Serial.end();
-
+void failed() {
     digitalWrite(greenLed, HIGH); // Make sure green LED is off
     digitalWrite(blueLed, HIGH); // Make sure blue LED is off
-
-    // Blink red fail LED 3 times to indicate failed key
     digitalWrite(redLed, LOW); // Turn on red LED
     delay(1200);
-    Serial.begin(9600);
 }
