@@ -36,8 +36,18 @@
  * (or some other hardware)
  * Used common anode led,digitalWriting HIGH turns OFF led
  * Care if you are going to use common cathode led
- * Simply change HIGHs to LOWs LOWs to HIGHs except RELAY
+ * Simply comment out #define COMMON_ANODE
  */
+ 
+#define COMMON_ANODE
+
+#ifdef COMMON_ANODE
+	#define LED_ON LOW
+	#define LED_OFF HIGH
+#else
+	#define LED_ON HIGH
+	#define LED_OFF LOW
+#endif
 
 #define redLed 5
 #define greenLed 8
@@ -175,25 +185,25 @@ int getID() {
 
 ///////////////////////////////////////// Program Mode Leds ///////////////////////////////////
 void programModeOn() {
-    digitalWrite(redLed, HIGH); // Make sure blue LED is off
-    digitalWrite(greenLed, LOW); // Make sure blue LED is on
-    digitalWrite(blueLed, HIGH); // Make sure green LED is off
+    digitalWrite(redLed, LED_OFF); // Make sure blue LED is off
+    digitalWrite(greenLed, LED_ON); // Make sure blue LED is on
+    digitalWrite(blueLed, LED_OFF); // Make sure green LED is off
     delay(200);
-    digitalWrite(redLed, HIGH); // Make sure blue LED is off
-    digitalWrite(greenLed, HIGH); // Make sure blue LED is off
-    digitalWrite(blueLed, LOW); // Make sure green LED is on
+    digitalWrite(redLed, LED_OFF); // Make sure blue LED is off
+    digitalWrite(greenLed, LED_OFF); // Make sure blue LED is off
+    digitalWrite(blueLed, LED_ON); // Make sure green LED is on
     delay(200);
-    digitalWrite(redLed, LOW); // Make sure blue LED is on
-    digitalWrite(greenLed, HIGH); // Make sure blue LED is off
-    digitalWrite(blueLed, HIGH); // Make sure green LED is off
+    digitalWrite(redLed, LED_ON); // Make sure blue LED is on
+    digitalWrite(greenLed, LED_OFF); // Make sure blue LED is off
+    digitalWrite(blueLed, LED_OFF); // Make sure green LED is off
     delay(200);
 }
 
 //////////////////////////////////////// Normal Mode Leds  ///////////////////////////////////
 void normalModeOn () {
-    digitalWrite(blueLed, LOW); // Power pin ON and ready to read card
-    digitalWrite(redLed, HIGH); // Make sure Green LED is off
-    digitalWrite(greenLed, HIGH); // Make sure Red LED is off
+    digitalWrite(blueLed, LED_ON); // Power pin ON and ready to read card
+    digitalWrite(redLed, LED_OFF); // Make sure Green LED is off
+    digitalWrite(greenLed, LED_OFF); // Make sure Red LED is off
     digitalWrite(relay, LOW); // Make sure Door is Locked
 }
 
@@ -349,38 +359,38 @@ boolean findID( byte find[] ) {
 ///////////////////////////////////////// Write Success to EEPROM   ///////////////////////////////////
 // Flashes the green LED 3 times to indicate a successful write to EEPROM
 void successWrite() {
-    digitalWrite(blueLed, HIGH); // Make sure blue LED is off
-    digitalWrite(redLed, HIGH); // Make sure red LED is off
-    digitalWrite(greenLed, HIGH); // Make sure green LED is on
+    digitalWrite(blueLed, LED_OFF); // Make sure blue LED is off
+    digitalWrite(redLed, LED_OFF); // Make sure red LED is off
+    digitalWrite(greenLed, LED_OFF); // Make sure green LED is on
     delay(200);
-    digitalWrite(greenLed, LOW); // Make sure green LED is on
+    digitalWrite(greenLed, LED_ON); // Make sure green LED is on
     delay(200);
-    digitalWrite(greenLed, HIGH); // Make sure green LED is off
+    digitalWrite(greenLed, LED_OFF); // Make sure green LED is off
     delay(200);
-    digitalWrite(greenLed, LOW); // Make sure green LED is on
+    digitalWrite(greenLed, LED_ON); // Make sure green LED is on
     delay(200);
-    digitalWrite(greenLed, HIGH); // Make sure green LED is off
+    digitalWrite(greenLed, LED_OFF); // Make sure green LED is off
     delay(200);
-    digitalWrite(greenLed, LOW); // Make sure green LED is on
+    digitalWrite(greenLed, LED_ON); // Make sure green LED is on
     delay(200);
 }
 
 ///////////////////////////////////////// Write Failed to EEPROM   ///////////////////////////////////
 // Flashes the red LED 3 times to indicate a failed write to EEPROM
 void failedWrite() {
-    digitalWrite(blueLed, HIGH); // Make sure blue LED is off
-    digitalWrite(redLed, HIGH); // Make sure red LED is off
-    digitalWrite(greenLed, HIGH); // Make sure green LED is off
+    digitalWrite(blueLed, LED_OFF); // Make sure blue LED is off
+    digitalWrite(redLed, LED_OFF); // Make sure red LED is off
+    digitalWrite(greenLed, LED_OFF); // Make sure green LED is off
     delay(200);
-    digitalWrite(redLed, LOW); // Make sure red LED is on
+    digitalWrite(redLed, LED_ON); // Make sure red LED is on
     delay(200);
-    digitalWrite(redLed, HIGH); // Make sure red LED is off
+    digitalWrite(redLed, LED_OFF); // Make sure red LED is off
     delay(200);
-    digitalWrite(redLed, LOW); // Make sure red LED is on
+    digitalWrite(redLed, LED_ON); // Make sure red LED is on
     delay(200);
-    digitalWrite(redLed, HIGH); // Make sure red LED is off
+    digitalWrite(redLed, LED_OFF); // Make sure red LED is off
     delay(200);
-    digitalWrite(redLed, LOW); // Make sure red LED is on
+    digitalWrite(redLed, LED_ON); // Make sure red LED is on
     delay(200);
     Serial.begin(9600);
 }
@@ -388,19 +398,19 @@ void failedWrite() {
 ///////////////////////////////////////// Success Remove UID From EEPROM  ///////////////////////////////////
 // Flashes the blue LED 3 times to indicate a success delete to EEPROM
 void successDelete() {
-    digitalWrite(blueLed, HIGH); // Make sure blue LED is off
-    digitalWrite(redLed, HIGH); // Make sure red LED is off
-    digitalWrite(greenLed, HIGH); // Make sure green LED is off
+    digitalWrite(blueLed, LED_OFF); // Make sure blue LED is off
+    digitalWrite(redLed, LED_OFF); // Make sure red LED is off
+    digitalWrite(greenLed, LED_OFF); // Make sure green LED is off
     delay(200);
-    digitalWrite(blueLed, LOW); // Make sure blue LED is on
+    digitalWrite(blueLed, LED_ON); // Make sure blue LED is on
     delay(200);
-    digitalWrite(blueLed, HIGH); // Make sure blue LED is off
+    digitalWrite(blueLed, LED_OFF); // Make sure blue LED is off
     delay(200);
-    digitalWrite(blueLed, LOW); // Make sure blue LED is on
+    digitalWrite(blueLed, LED_ON); // Make sure blue LED is on
     delay(200);
-    digitalWrite(blueLed, HIGH); // Make sure blue LED is off
+    digitalWrite(blueLed, LED_OFF); // Make sure blue LED is off
     delay(200);
-    digitalWrite(blueLed, LOW); // Make sure blue LED is on
+    digitalWrite(blueLed, LED_ON); // Make sure blue LED is on
     delay(200);
 }
 
@@ -416,20 +426,20 @@ boolean isMaster( byte test[] ) {
 ///////////////////////////////////////// Unlock Door   ///////////////////////////////////
 void openDoor( int setDelay ) {
     setDelay *= 1000; // Sets delay in seconds
-    digitalWrite(blueLed, HIGH); // Turn off blue LED
-    digitalWrite(redLed, HIGH); // Turn off red LED	
-    digitalWrite(greenLed, LOW); // Turn on green LED
+    digitalWrite(blueLed, LED_OFF); // Turn off blue LED
+    digitalWrite(redLed, LED_OFF); // Turn off red LED	
+    digitalWrite(greenLed, LED_ON); // Turn on green LED
     digitalWrite(relay, HIGH); // Unlock door!
     delay(setDelay); // Hold door lock open for 2 seconds
     digitalWrite(relay, LOW); // Relock door
     delay(setDelay); // Hold green LED on for 2 more seconds
-    digitalWrite(greenLed, HIGH);	// Turn off green LED
+    digitalWrite(greenLed, LED_OFF);	// Turn off green LED
 }
 
 ///////////////////////////////////////// Failed Access  ///////////////////////////////////
 void failed() {
-    digitalWrite(greenLed, HIGH); // Make sure green LED is off
-    digitalWrite(blueLed, HIGH); // Make sure blue LED is off
-    digitalWrite(redLed, LOW); // Turn on red LED
+    digitalWrite(greenLed, LED_OFF); // Make sure green LED is off
+    digitalWrite(blueLed, LED_OFF); // Make sure blue LED is off
+    digitalWrite(redLed, LED_ON); // Turn on red LED
     delay(1200);
 }
