@@ -145,7 +145,6 @@ void loop () {
             }
         }
     }
-
 }
 
 ///////////////////////////////////////// Get PICC's UID ///////////////////////////////////
@@ -203,8 +202,7 @@ void readID( int number ) {
     //Serial.print("Start: ");
     //Serial.print(start);
     //Serial.print("\n\n");
-    for ( int i = 0; i < 5; i++ ) // Loop 5 times to get the 5 Bytes
-    {
+    for ( int i = 0; i < 5; i++ ) { // Loop 5 times to get the 5 Bytes
         storedCard[i] = EEPROM.read(start+i); // Assign values read from EEPROM to array
         /*
           Serial.print("Read [");
@@ -218,8 +216,7 @@ void readID( int number ) {
 
 ///////////////////////////////////////// Add ID to EEPROM   ///////////////////////////////////
 void writeID( byte a[] ) {
-    if ( !findID( a ) ) // Before we write to the EEPROM, check to see if we have seen this card before!
-    {
+    if ( !findID( a ) ) { // Before we write to the EEPROM, check to see if we have seen this card before!
         int num = EEPROM.read(0); // Get the numer of used spaces, position 0 stores the number of ID cards
         /*
          Serial.print("Num: ");
@@ -229,11 +226,10 @@ void writeID( byte a[] ) {
         int start = ( num * 5 ) + 1; // Figure out where the next slot starts
         num++; // Increment the counter by one
         EEPROM.write( 0, num ); // Write the new count to the counter
-        for ( int j = 0; j < 5; j++ ) // Loop 5 times
-        {
+        for ( int j = 0; j < 5; j++ ) { // Loop 5 times
             EEPROM.write( start+j, a[j] ); // Write the array values to EEPROM in the right position
             /*
-                    Serial.print("W[");
+             Serial.print("W[");
              Serial.print(start+j);
              Serial.print("] Value [");
              Serial.print(a[j], HEX);
@@ -242,26 +238,22 @@ void writeID( byte a[] ) {
         }
         successWrite();
     }
-    else
-    {
+    else {
         failedWrite();
     }
 }
 
 ///////////////////////////////////////// Remove ID from EEPROM   ///////////////////////////////////
 void deleteID( byte a[] ) {
-    if ( !findID( a ) ) // Before we delete from the EEPROM, check to see if we have this card!
-    {
+    if ( !findID( a ) ) { // Before we delete from the EEPROM, check to see if we have this card!
         failedWrite(); // If not
     }
-    else
-    {
+    else {
         int num = EEPROM.read(0); // Get the numer of used spaces, position 0 stores the number of ID cards
         int slot; // Figure out the slot number of the card
         int start;// = ( num * 5 ) + 1; // Figure out where the next slot starts
         int looping; // The number of times the loop repeats
         int j;
-
         int count = EEPROM.read(0); // Read the first Byte of EEPROM that
         // Serial.print("Count: "); // stores the number of ID's in EEPROM
         // Serial.print(count);
@@ -271,38 +263,30 @@ void deleteID( byte a[] ) {
         looping = ((num - slot) * 5);
         num--; // Decrement the counter by one
         EEPROM.write( 0, num ); // Write the new count to the counter
-
-        for ( j = 0; j < looping; j++ ) // Loop the card shift times
-        {
+        for ( j = 0; j < looping; j++ ) { // Loop the card shift times
             EEPROM.write( start+j, EEPROM.read(start+5+j)); // Shift the array values to 5 places earlier in the EEPROM
             /*
-                    Serial.print("W[");
+             Serial.print("W[");
              Serial.print(start+j);
              Serial.print("] Value [");
              Serial.print(a[j], HEX);
              Serial.print("] \n");
              */
         }
-        for ( int k = 0; k < 5; k++ ) //Shifting loop
-        {
+        for ( int k = 0; k < 5; k++ ) { //Shifting loop
             EEPROM.write( start+j+k, 0);
         }
         successDelete();
-
-
     }
-
 }
 
 ///////////////////////////////////////// Check Bytes   ///////////////////////////////////
 boolean checkTwo ( byte a[], byte b[] ) {
     if ( a[0] != NULL ) // Make sure there is something in the array first
         match = true; // Assume they match at first
-
-    for ( int k = 0; k < 5; k++ ) // Loop 5 times
-    {
+    for ( int k = 0; k < 5; k++ ) { // Loop 5 times
         /*
-              Serial.print("[");
+         Serial.print("[");
          Serial.print(k);
          Serial.print("] ReadCard [");
          Serial.print(a[k], HEX);
@@ -313,8 +297,7 @@ boolean checkTwo ( byte a[], byte b[] ) {
         if ( a[k] != b[k] ) // IF a != b then set match = false, one fails, all fail
             match = false;
     }
-    if ( match ) // Check to see if if match is still true
-    {
+    if ( match ) { // Check to see if if match is still true
         //Serial.print("Strings Match! \n");
         return true; // Return true
     }
@@ -329,12 +312,11 @@ int findIDSLOT( byte find[] ) {
     int count = EEPROM.read(0); // Read the first Byte of EEPROM that
     // Serial.print("Count: "); // stores the number of ID's in EEPROM
     // Serial.print(count);
-    //Serial.print("\n");
-    for ( int i = 1; i <= count; i++ ) // Loop once for each EEPROM entry
-    {
-        readID(i); // Read an ID from EEPROM, it is stored in storedCard[6]
-        if( checkTwo( find, storedCard ) ) // Check to see if the storedCard read from EEPROM
-        {   // is the same as the find[] ID card passed
+    // Serial.print("\n");
+    for ( int i = 1; i <= count; i++ ) { // Loop once for each EEPROM entry
+		readID(i); // Read an ID from EEPROM, it is stored in storedCard[6]
+        if( checkTwo( find, storedCard ) ) { // Check to see if the storedCard read from EEPROM
+			// is the same as the find[] ID card passed
             //Serial.print("We have a matched card!!! \n");
             return i; // The slot number of the card
             break; // Stop looking we found it
@@ -347,18 +329,16 @@ boolean findID( byte find[] ) {
     int count = EEPROM.read(0); // Read the first Byte of EEPROM that
     // Serial.print("Count: "); // stores the number of ID's in EEPROM
     // Serial.print(count);
-    //Serial.print("\n");
-    for ( int i = 1; i <= count; i++ ) // Loop once for each EEPROM entry
-    {
+    // Serial.print("\n");
+    for ( int i = 1; i <= count; i++ ) {  // Loop once for each EEPROM entry
         readID(i); // Read an ID from EEPROM, it is stored in storedCard[6]
-        if( checkTwo( find, storedCard ) ) // Check to see if the storedCard read from EEPROM
-        {   // is the same as the find[] ID card passed
+        if( checkTwo( find, storedCard ) ) {  // Check to see if the storedCard read from EEPROM
+            // is the same as the find[] ID card passed
             //Serial.print("We have a matched card!!! \n");
             return true;
             break; // Stop looking we found it
         }
-        else // If not, return false
-        {
+        else {  // If not, return false   
             //Serial.print("No Match here.... \n");
         }
     }
