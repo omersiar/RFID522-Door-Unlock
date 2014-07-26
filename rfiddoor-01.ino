@@ -2,7 +2,7 @@
  *
  * Credits
  *
- * Idea based on Brett Martin's project
+ * Idea and most of the code from Brett Martin's project
  * http://www.instructables.com/id/Arduino-RFID-Door-Lock/
  * www.pcmofo.com
  *
@@ -34,7 +34,9 @@
  * we need some leds and
  * to control door lock a relay
  * (or some other hardware)
- * Used common anode led,digitalWriting HIGH turns off led
+ * Used common anode led,digitalWriting HIGH turns OFF led
+ * Care if you are going to use common cathode led
+ * Simply change HIGHs to LOWs LOWs to HIGHs except RELAY
  */
 
 #define redLed 5
@@ -152,7 +154,6 @@ int getID() {
     /*
      * Getting ready for Reading PICCs
      */
-	 
     if ( ! mfrc522.PICC_IsNewCardPresent()) {
         return 0;
     }
@@ -403,7 +404,7 @@ void successDelete() {
     delay(200);
 }
 
-///////////////////////////////////////// Check readCard is masterCard   ///////////////////////////////////
+////////////////////// Check readCard IF is masterCard   ///////////////////////////////////
 // Check to see if the ID passed is the master programing card
 boolean isMaster( byte test[] ) {
     if ( checkTwo( test, masterCard ) )
