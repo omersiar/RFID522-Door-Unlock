@@ -111,8 +111,7 @@ void setup() {
 
 ///////////////////////////////////////// Main Loop ///////////////////////////////////
 
-void loop ()
-{
+void loop () {
     int successRead;     // this block is only to show to the user the mode
     if (programMode) {
         programModeOn();   // Program Mode cycles through RGB waiting to read a new card
@@ -124,22 +123,20 @@ void loop ()
         successRead = getID(); // Get the ID, sets readCard = to the read ID
     }
     while (!successRead); //the program will not go further while you not get a successful read
-    if (programMode) {
-        programMode = false;  // next time will enter in normal mode
-        if ( findID(readCard) )
-        {
-            Serial.println("I know this PICC, so removing");
-            delay(1000);
-            deleteID(readCard);
-            Serial.println("Removed- Exiting Program Mode");
-        }
-        else
-        {
-            Serial.println("I do not know this PICC, adding...");
-            writeID(readCard);
-            Serial.println("Added - Exiting Program Mode");
-        }
-    }
+		if (programMode) {
+			programMode = false;  // next time will enter in normal mode
+			if ( findID(readCard) ) {
+				Serial.println("I know this PICC, so removing");
+				delay(1000);
+				deleteID(readCard);
+				Serial.println("Removed- Exiting Program Mode");
+			}
+			else {
+				Serial.println("I do not know this PICC, adding...");
+				writeID(readCard);
+				Serial.println("Added - Exiting Program Mode");
+			}
+		}
     else {
         if ( isMaster(readCard) ) {
             programMode = true;
@@ -147,14 +144,11 @@ void loop ()
             Serial.println("Scan a PICC to ADD or REMOVE");
         }
         else {
-
-            if ( findID(readCard) ) // If not, see if the card is in the EEPROM
-            {
+            if ( findID(readCard) ) {        // If not, see if the card is in the EEPROM 
                 Serial.println("Welcome, You shall pass");
-                openDoor(1); // If it is, open the door lock for 1 second
+                openDoor(1);                // If it is, open the door lock for 1 second
             }
-            else
-            {
+            else {
                 Serial.println("You shall not pass");
                 failed(); // If not, show that the ID was not valid
             }
