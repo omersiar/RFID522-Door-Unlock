@@ -175,18 +175,22 @@ void loop () {
     while (!successRead); //the program will not go further while you not get a successful read
 		if (programMode) {
 			programMode = false;  // next time will enter in normal mode
-			if ( findID(readCard) ) {
-				Serial.println("I know this PICC, so removing");
-				delay(1000);
-				deleteID(readCard);   // If scanned card is in EEPROM, delete it
+			if ( isMaster(readCard) ) {
 				Serial.println("Exiting Program Mode");
+				break;
 			}
-			else {
-				Serial.println("I do not know this PICC, adding...");
-				delay(1000);
-				writeID(readCard);  // If scanned card not in EEPROM add it
-				Serial.println("Exiting Program Mode");
-			}
+				if ( findID(readCard) ) {
+					Serial.println("I know this PICC, so removing");
+					delay(1000);
+					deleteID(readCard);   // If scanned card is in EEPROM, delete it
+					Serial.println("Exiting Program Mode");
+				}
+				else {
+					Serial.println("I do not know this PICC, adding...");
+					delay(1000);
+					writeID(readCard);  // If scanned card not in EEPROM add it
+					Serial.println("Exiting Program Mode");
+				}
 		}
     else {
         if ( isMaster(readCard) ) {
@@ -369,7 +373,7 @@ int findIDSLOT( byte find[] ) {
     int count = EEPROM.read(0); // Read the first Byte of EEPROM that
     Serial.print("EEPROM Records: "); // stores the number of ID's in EEPROM
     Serial.print(count);
-    Serial.prinln("");
+    Serial.println("");
     for ( int i = 1; i <= count; i++ ) { // Loop once for each EEPROM entry
 	readID(i); // Read an ID from EEPROM, it is stored in storedCard[6]
         if( checkTwo( find, storedCard ) ) { // Check to see if the storedCard read from EEPROM
