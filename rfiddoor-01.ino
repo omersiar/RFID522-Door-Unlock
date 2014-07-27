@@ -1,4 +1,5 @@
 /* Arduino RC522 RFID Door Unlocker
+ * July/2014 Omer Siar Baysal
  *
  * Credits
  *
@@ -13,8 +14,7 @@
  * http://forum.arduino.cc/index.php?topic=257036.0
  * http://forum.arduino.cc/index.php?action=profile;u=198897
  *
- * I have not personally asked for permission to use code from them
- * or how to license this work.
+ * Code is Freely available
  *
  * "PICC" short for Proximity Integrated Circuit Card (RFID Tags)
  */
@@ -216,7 +216,7 @@ void readID( int number ) {
     for ( int i = 0; i < 5; i++ ) { // Loop 5 times to get the 5 Bytes
         storedCard[i] = EEPROM.read(start+i); // Assign values read from EEPROM to array
         /*
-          Serial.print("Read [");
+         Serial.print("Read [");
          Serial.print(start+i);
          Serial.print("] [");
          Serial.print(storedCard[i], HEX);
@@ -321,16 +321,16 @@ boolean checkTwo ( byte a[], byte b[] ) {
 ///////////////////////////////////////// Find Slot   ///////////////////////////////////
 int findIDSLOT( byte find[] ) {
     int count = EEPROM.read(0); // Read the first Byte of EEPROM that
-    // Serial.print("Count: "); // stores the number of ID's in EEPROM
-    // Serial.print(count);
-    // Serial.print("\n");
+    Serial.print("EEPROM Records: "); // stores the number of ID's in EEPROM
+    Serial.print(count);
+    Serial.prinln("");
     for ( int i = 1; i <= count; i++ ) { // Loop once for each EEPROM entry
-		readID(i); // Read an ID from EEPROM, it is stored in storedCard[6]
+	readID(i); // Read an ID from EEPROM, it is stored in storedCard[6]
         if( checkTwo( find, storedCard ) ) { // Check to see if the storedCard read from EEPROM
-			// is the same as the find[] ID card passed
-            //Serial.print("We have a matched card!!! \n");
-            return i; // The slot number of the card
-            break; // Stop looking we found it
+		// is the same as the find[] ID card passed
+        	//Serial.print("We have a matched card!!! \n");
+        	return i; // The slot number of the card
+        	break; // Stop looking we found it
         }
     }
 }
@@ -345,12 +345,12 @@ boolean findID( byte find[] ) {
         readID(i); // Read an ID from EEPROM, it is stored in storedCard[6]
         if( checkTwo( find, storedCard ) ) {  // Check to see if the storedCard read from EEPROM
             // is the same as the find[] ID card passed
-            //Serial.print("We have a matched card!!! \n");
+            // Serial.println("I have a record for this PICC");
             return true;
             break; // Stop looking we found it
         }
         else {  // If not, return false   
-            //Serial.print("No Match here.... \n");
+            // Serial.println("No record matched on EEPROM for this PICC");
         }
     }
     return false;
@@ -373,6 +373,7 @@ void successWrite() {
     delay(200);
     digitalWrite(greenLed, LED_ON); // Make sure green LED is on
     delay(200);
+    Serial.println("Succesfully added ID record to EEPROM");
 }
 
 ///////////////////////////////////////// Write Failed to EEPROM   ///////////////////////////////////
@@ -392,7 +393,7 @@ void failedWrite() {
     delay(200);
     digitalWrite(redLed, LED_ON); // Make sure red LED is on
     delay(200);
-    Serial.begin(9600);
+    Serial.println("Failed! There is something wrong with ID or bad EEPROM");
 }
 
 ///////////////////////////////////////// Success Remove UID From EEPROM  ///////////////////////////////////
@@ -412,6 +413,7 @@ void successDelete() {
     delay(200);
     digitalWrite(blueLed, LED_ON); // Make sure blue LED is on
     delay(200);
+    Serial.println("Succesfully removed ID record from EEPROM");
 }
 
 ////////////////////// Check readCard IF is masterCard   ///////////////////////////////////
