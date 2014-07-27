@@ -121,9 +121,9 @@
 boolean match = false; // initialize card match to false
 boolean programMode = false; // initialize programming mode to false
 
-byte storedCard[6];   // Stores an ID read from EEPROM
-byte readCard[6];           // Stores scanned ID read from RFID Module
-byte masterCard[6] = {0x47,0x9c,0x85,0xb5}; // Define master PICC's UID Here
+byte storedCard[4];   // Stores an ID read from EEPROM
+byte readCard[4];           // Stores scanned ID read from RFID Module
+byte masterCard[4] = {0x47,0x9c,0x85,0xb5}; // Define master PICC's UID Here
 
 /* We need to define MFRC522's pins and create instance
  * Pin layout should be as follows (on Arduino Uno):
@@ -175,22 +175,22 @@ void loop () {
     while (!successRead); //the program will not go further while you not get a successful read
 		if (programMode) {
 			programMode = false;  // next time will enter in normal mode
-			if ( isMaster(readCard) ) {
-                                Serial.println("This is Master Card");
+			if ( isMaster(readCard) ) {  //If master card scanned again exit program mode
+                                Serial.println("This is Master Card"); 
 				Serial.println("Exiting Program Mode");
                                 return;
 			}
                         else {	
-                                if ( findID(readCard) ) {
+                                if ( findID(readCard) ) { //If scanned card is known delete it
 					Serial.println("I know this PICC, so removing");
 					delay(1000);
-					deleteID(readCard);   // If scanned card is in EEPROM, delete it
+					deleteID(readCard);   
 					Serial.println("Exiting Program Mode");
 				}
-				else {
+				else {                    // If scanned card is not known add it
 					Serial.println("I do not know this PICC, adding...");
 					delay(1000);
-					writeID(readCard);  // If scanned card not in EEPROM add it
+					writeID(readCard);  
 					Serial.println("Exiting Program Mode");
 				}
                         }
@@ -262,11 +262,11 @@ void normalModeOn () {
 
 //////////////////////////////////////// Read an ID from EEPROM //////////////////////////////
 void readID( int number ) {
-    int start = (number * 5 ) - 4; // Figure out starting position
+    int start = (number * 4 ) - 3; // Figure out starting position
     //Serial.print("Start: ");
     //Serial.print(start);
     //Serial.print("\n\n");
-    for ( int i = 0; i < 5; i++ ) { // Loop 5 times to get the 5 Bytes
+    for ( int i = 0; i < 4; i++ ) { // Loop 4 times to get the 4 Bytes
         storedCard[i] = EEPROM.read(start+i); // Assign values read from EEPROM to array
         /*
          Serial.print("Read [");
@@ -287,10 +287,10 @@ void writeID( byte a[] ) {
          Serial.print(num);
          Serial.print(" \n");
          */
-        int start = ( num * 5 ) + 1; // Figure out where the next slot starts
+        int start = ( num * 4 ) + 1; // Figure out where the next slot starts
         num++; // Increment the counter by one
         EEPROM.write( 0, num ); // Write the new count to the counter
-        for ( int j = 0; j < 5; j++ ) { // Loop 5 times
+        for ( int j = 0; j < 4; j++ ) { // Loop 4 times
             EEPROM.write( start+j, a[j] ); // Write the array values to EEPROM in the right position
             /*
              Serial.print("W[");
@@ -315,7 +315,7 @@ void deleteID( byte a[] ) {
     else {
         int num = EEPROM.read(0); // Get the numer of used spaces, position 0 stores the number of ID cards
         int slot; // Figure out the slot number of the card
-        int start;// = ( num * 5 ) + 1; // Figure out where the next slot starts
+        int start;// = ( num * 4 ) + 1; // Figure out where the next slot starts
         int looping; // The number of times the loop repeats
         int j;
         int count = EEPROM.read(0); // Read the first Byte of EEPROM that
@@ -323,12 +323,12 @@ void deleteID( byte a[] ) {
         // Serial.print(count);
         //Serial.print("\n");
         slot = findIDSLOT( a ); //Figure out the slot number of the card to delete
-        start = (slot * 5) - 4;
-        looping = ((num - slot) * 5);
+        start = (slot * 4) - 3;
+        looping = ((num - slot) * 4);
         num--; // Decrement the counter by one
         EEPROM.write( 0, num ); // Write the new count to the counter
         for ( j = 0; j < looping; j++ ) { // Loop the card shift times
-            EEPROM.write( start+j, EEPROM.read(start+5+j)); // Shift the array values to 5 places earlier in the EEPROM
+            EEPROM.write( start+j, EEPROM.read(start+4+j)); // Shift the array values to 4 places earlier in the EEPROM
             /*
              Serial.print("W[");
              Serial.print(start+j);
@@ -337,7 +337,7 @@ void deleteID( byte a[] ) {
              Serial.print("] \n");
              */
         }
-        for ( int k = 0; k < 5; k++ ) { //Shifting loop
+        for ( int k = 0; k < 4; k++ ) { //Shifting loop
             EEPROM.write( start+j+k, 0);
         }
         successDelete();
@@ -348,7 +348,7 @@ void deleteID( byte a[] ) {
 boolean checkTwo ( byte a[], byte b[] ) {
     if ( a[0] != NULL ) // Make sure there is something in the array first
         match = true; // Assume they match at first
-    for ( int k = 0; k < 5; k++ ) { // Loop 5 times
+    for ( int k = 0; k < 4; k++ ) { // Loop 4 times
         /*
          Serial.print("[");
          Serial.print(k);
@@ -501,5 +501,4 @@ void failed() {
     //analogWrite(buzzer, 30); // Buzzer on
     delay(1200);
     //analogWrite(buzzer, 0); // Buzzer off
-
 }
