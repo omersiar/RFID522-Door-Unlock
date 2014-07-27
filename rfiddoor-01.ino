@@ -1,20 +1,73 @@
 /* Arduino RC522 RFID Door Unlocker
  * July/2014 Omer Siar Baysal
+ * 
+ * Unlocks a Door (controls a relay actually)
+ * using a RC522 reader with SPI interface on your Arduino
+ * You define a Master Card which is act as Programmer
+ * then you can able to choose card holders who able to unlock
+ * the door or not.
+ * 
+ * Easy User Interface
  *
+ * Just one RFID tag needed whether Delete or Add Tags
+ * You can choose to use Leds for output or
+ * Serial LCD module to inform users. Or you can use both
+ *
+ * Stores Information on EEPROM
+ *
+ * Information stored on non volatile memory to preserve
+ * Users' tag, Master Card ID will be hard coded on Arduino's Flash
+ * No Information lost if power lost
+ * 
+ * Security
+ *
+ * We are going to use Tag's Unique IDs, But since this module
+ * and Tags are cheap, I guess their IDs not so Unique.
+ *
+ * I think it is not secure to only use Tags' UID
+ * to verify Tags' users who want to unlock a door.
+ *
+ * MFRC522 Library also lets us to use some authentication
+ * mechanism, writing blocks and reading back
+ * and there is great example piece of code
+ * about reading and writing PICCs
+ * here > http://makecourse.weebly.com/week10segment1.html
+ *
+ * If you serious about coding and security
+ * you should really check Mıfare's datasheet
+ * We are going to use completely INSECURE way to
+ * Unlock a door.
+ *
+ * And there is a note on Datasheet which mentions aboout that
+ * Note: The use of Single Size UIDs (unique ones) might end soon, 
+ * since the number of usable IDs is limited to approximately 
+ * 3.7 billion pieces only. 
+ *
+ * If you rely on heavy security, figure it out how RFID system
+ * can be secure yourself (personally very curious about it)
+ *
+ * Also there are always security
+ * issues if there is a "LOCK" actually.
+ * 
  * Credits
  *
- * Idea and most of the code from Brett Martin's project
+ * Omer Siar Baysal who put together this project
+ *
+ * Idea and most of code from Brett Martin's project
  * http://www.instructables.com/id/Arduino-RFID-Door-Lock/
  * www.pcmofo.com
  *
  * MFRC522 Library from miguelbalboa
  * https://github.com/miguelbalboa/rfid
  *
- * Arduino Forum Member luisilva for His Great Help
+ * Arduino Forum Member luisilva for His Massive Code Correction
  * http://forum.arduino.cc/index.php?topic=257036.0
  * http://forum.arduino.cc/index.php?action=profile;u=198897
  *
- * Code is Freely available
+ * License
+ *
+ * You are FREE what to do with this code 
+ * Just give credits who put effort on this code
  *
  * "PICC" short for Proximity Integrated Circuit Card (RFID Tags)
  */
@@ -23,12 +76,13 @@
 #include <SPI.h>      // RC522 Module uses SPI protocol
 #include <MFRC522.h>   // Library for Mifare RC522 Devices
 
-// #include <Servo.h>
-
-/* Servos can lock and unlock door locks
- * There are examples out there
- * May be we want to use a servo
+/* Instead of a Relay maybe you want to use a servo
+ * Servos can lock and unlock door locks too
+ * There are examples out there, If you want you
+ * only need to modify void openDoor
  */
+
+// #include <Servo.h>
 
 /* For visualizing whats going on hardware
  * we need some leds and
@@ -36,7 +90,9 @@
  * (or some other hardware)
  * Used common anode led,digitalWriting HIGH turns OFF led
  * Care if you are going to use common cathode led
- * Simply comment out #define COMMON_ANODE
+ * Simply comment out #define COMMON_ANODE,
+ * If you want to use seperate Leds for each color
+ * you also you need to comment
  */
  
 #define COMMON_ANODE
@@ -54,27 +110,13 @@
 #define blueLed 7
 #define relay 6
 
-//define buzzer ? maybe we want that
+/* 
+ * buzzer on pin PWM 3 maybe you want that, 
+ * if so uncomment this line and at void openDoor
+ * and at void failed
+ */ 
 
-/*
- * I think it is not secure to only use PICC's UID
- * to verify PICC's user who wants to unlock a door.
- *
- * MFRC522 Library also let us to use some authentication
- * mechanism, writing blocks and reading back
- * and there is great example piece of code
- * about reading and writing PICCs
- * here > http://makecourse.weebly.com/week10segment1.html
- *
- * If you serious about coding and security
- * you should really check Mıfare's datasheet
- * We are going to use completely INSECURE way to
- * Unlock a door.
- *
- * Also there are always security
- * issues if there is a "LOCK" actually.
- *
- */
+//#define buzzer 3  
 
 boolean match = false; // initialize card match to false
 boolean programMode = false; // initialize programming mode to false
@@ -84,7 +126,13 @@ byte readCard[6];           // Stores scanned ID read from RFID Module
 byte masterCard[6] = {0x47,0x9c,0x85,0xb5}; // Define master PICC's UID Here
 
 /* We need to define MFRC522's pins and create instance
- * These pins for Uno, look MFRC522 Library for
+ * Pin layout should be as follows (on Arduino Uno):
+ * MOSI: Pin 11 / ICSP-4
+ * MISO: Pin 12 / ICSP-1
+ * SCK : Pin 13 / ISCP-3
+ * SS : Pin 10 (Configurable)
+ * RST : Pin 9 (Configurable)
+ * look MFRC522 Library for
  * pin configuration for other Arduinos.
  */
 
@@ -164,15 +212,13 @@ int getID() {
     /*
      * Getting ready for Reading PICCs
      */
-    if ( ! mfrc522.PICC_IsNewCardPresent()) {
+    if ( ! mfrc522.PICC_IsNewCardPresent()) { //If a new PICC placed to RFID reader continue
         return 0;
     }
-    if ( ! mfrc522.PICC_ReadCardSerial()) {
+    if ( ! mfrc522.PICC_ReadCardSerial()) { //Since a PICC placed get Serial and continue
         return 0;
     }
-    /*
-     *  Now we are ready to read PICCs
-     */
+    // There are Mifare PICCs which have 4 byte or 7 byte UID care if you use 7 byte PICC
     Serial.println("Scanned PICC's UID:");
     for (byte i = 0; i < mfrc522.uid.size; i++) {  // for size of uid.size write uid.uidByte to readCard
         readCard[i] = mfrc522.uid.uidByte[i];
@@ -434,7 +480,9 @@ void openDoor( int setDelay ) {
     digitalWrite(relay, HIGH); // Unlock door!
     delay(setDelay); // Hold door lock open for 2 seconds
     digitalWrite(relay, LOW); // Relock door
+    //analogWrite(buzzer, 30); // Buzzer on
     delay(setDelay); // Hold green LED on for 2 more seconds
+    //analogWrite(buzzer, 0); // Buzzer off
     digitalWrite(greenLed, LED_OFF);	// Turn off green LED
 }
 
@@ -443,5 +491,8 @@ void failed() {
     digitalWrite(greenLed, LED_OFF); // Make sure green LED is off
     digitalWrite(blueLed, LED_OFF); // Make sure blue LED is off
     digitalWrite(redLed, LED_ON); // Turn on red LED
+    //analogWrite(buzzer, 30); // Buzzer on
     delay(1200);
+    //analogWrite(buzzer, 0); // Buzzer off
+
 }
