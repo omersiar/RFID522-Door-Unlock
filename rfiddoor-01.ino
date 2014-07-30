@@ -2,7 +2,7 @@
  * July/2014 Omer Siar Baysal
  * 
  * Unlocks a Door (controls a relay actually)
- * using a RC522 reader with SPI interface on your Arduino
+ * using a RC522 RFID reader with SPI interface on your Arduino
  * You define a Master Card which is act as Programmer
  * then you can able to choose card holders who able to unlock
  * the door or not.
@@ -17,7 +17,8 @@
  *
  * Information stored on non volatile memory to preserve
  * Users' tag, Master Card ID will be hard coded on Arduino's Flash
- * No Information lost if power lost
+ * No Information lost if power lost. EEPROM has unlimited
+ * Read cycle but 100,000 limited Write cycle. 
  * 
  * Security
  *
@@ -321,7 +322,7 @@ void deleteID( byte a[] ) {
         int count = EEPROM.read(0); // Read the first Byte of EEPROM that
         // Serial.print("Count: "); // stores the number of ID's in EEPROM
         // Serial.print(count);
-        //Serial.print("\n");
+        // Serial.print("\n");
         slot = findIDSLOT( a ); //Figure out the slot number of the card to delete
         start = (slot * 4) - 3;
         looping = ((num - slot) * 4);
@@ -381,7 +382,7 @@ int findIDSLOT( byte find[] ) {
 	readID(i); // Read an ID from EEPROM, it is stored in storedCard[6]
         if( checkTwo( find, storedCard ) ) { // Check to see if the storedCard read from EEPROM
 		// is the same as the find[] ID card passed
-        	//Serial.print("We have a matched card!!! \n");
+        	// Serial.print("We have a matched card!!! \n");
         	return i; // The slot number of the card
         	break; // Stop looking we found it
         }
