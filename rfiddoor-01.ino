@@ -106,10 +106,10 @@
 	#define LED_OFF LOW
 #endif
 
-#define redLed 5
-#define greenLed 8
-#define blueLed 7
-#define relay 6
+#define redLed 7
+#define greenLed 6
+#define blueLed 5
+#define relay 4
 
 /* 
  * buzzer on pin PWM 3 maybe you want that, 
@@ -150,6 +150,7 @@ void setup() {
     pinMode(greenLed, OUTPUT);
     pinMode(blueLed, OUTPUT);
     pinMode(relay, OUTPUT);
+    digitalWrite(relay, LOW); // Make sure door is locked
     /*
      * Protocol Configuration
      */
