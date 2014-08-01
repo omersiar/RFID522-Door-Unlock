@@ -150,7 +150,7 @@ void setup() {
     pinMode(greenLed, OUTPUT);
     pinMode(blueLed, OUTPUT);
     pinMode(relay, OUTPUT);
-    digitalWrite(relay, LOW); // Make sure door is locked
+    digitalWrite(relay, HIGH); // Make sure door is locked
     /*
      * Protocol Configuration
      */
@@ -185,13 +185,11 @@ void loop () {
                         else {	
                                 if ( findID(readCard) ) { //If scanned card is known delete it
 					Serial.println("I know this PICC, so removing");
-					delay(1000);
 					deleteID(readCard);   
 					Serial.println("Exiting Program Mode");
 				}
 				else {                    // If scanned card is not known add it
 					Serial.println("I do not know this PICC, adding...");
-					delay(1000);
 					writeID(readCard);  
 					Serial.println("Exiting Program Mode");
 				}
@@ -206,7 +204,7 @@ void loop () {
         else {
             if ( findID(readCard) ) {        // If not, see if the card is in the EEPROM 
                 Serial.println("Welcome, You shall pass");
-                openDoor(1);                // If it is, open the door lock for 1 second
+                openDoor(300);                // If it is, open the door lock for 300 ms
             }
             else {
                 Serial.println("You shall not pass");
@@ -259,7 +257,7 @@ void normalModeOn () {
     digitalWrite(blueLed, LED_ON); // Power pin ON and ready to read card
     digitalWrite(redLed, LED_OFF); // Make sure Green LED is off
     digitalWrite(greenLed, LED_OFF); // Make sure Red LED is off
-    digitalWrite(relay, LOW); // Make sure Door is Locked
+    digitalWrite(relay, HIGH); // Make sure Door is Locked
 }
 
 //////////////////////////////////////// Read an ID from EEPROM //////////////////////////////
@@ -482,15 +480,14 @@ boolean isMaster( byte test[] ) {
 
 ///////////////////////////////////////// Unlock Door   ///////////////////////////////////
 void openDoor( int setDelay ) {
-    setDelay *= 1000; // Sets delay in seconds
     digitalWrite(blueLed, LED_OFF); // Turn off blue LED
     digitalWrite(redLed, LED_OFF); // Turn off red LED	
     digitalWrite(greenLed, LED_ON); // Turn on green LED
-    digitalWrite(relay, HIGH); // Unlock door!
+    digitalWrite(relay, LOW); // Unlock door!
     delay(setDelay); // Hold door lock open for 2 seconds
-    digitalWrite(relay, LOW); // Relock door
+    digitalWrite(relay, HIGH); // Relock door
     //analogWrite(buzzer, 30); // Buzzer on
-    delay(setDelay); // Hold green LED on for 2 more seconds
+    delay(2000); // Hold green LED on for 2 more seconds
     //analogWrite(buzzer, 0); // Buzzer off
     digitalWrite(greenLed, LED_OFF);	// Turn off green LED
 }
