@@ -21,9 +21,10 @@
  * Read cycle but 100,000 limited Write cycle. 
  * 
  * Security
- *
- * We are going to use Tag's Unique IDs, But since this module
- * and Tags are cheap, I guess their IDs not so Unique.
+ * 
+ * To keep it simple we are going to use Tag's Unique IDs, 
+ * But since this module and Tags are cheap, 
+ * I guess their IDs not so Unique.
  *
  * I think it is not secure to only use Tags' UID
  * to verify Tags' users who want to unlock a door.
@@ -58,8 +59,12 @@
  * http://www.instructables.com/id/Arduino-RFID-Door-Lock/
  * www.pcmofo.com
  *
- * MFRC522 Library from miguelbalboa
+ * MFRC522 Library
  * https://github.com/miguelbalboa/rfid
+ * Based on code Dr.Leong   ( WWW.B2CQSHOP.COM )
+ * Created by Miguel Balboa (circuitito.com), Jan, 2012.
+ * Rewritten by Søren Thing Andersen (access.thing.dk), fall of 2013 
+ * (Translation to English, refactored, comments, anti collision, cascade levels.)
  *
  * Arduino Forum Member luisilva for His Massive Code Correction
  * http://forum.arduino.cc/index.php?topic=257036.0
@@ -164,8 +169,7 @@ void setup() {
 
 ///////////////////////////////////////// Main Loop ///////////////////////////////////
 void loop () {
-    int successRead;     // this block is only to show to the user the mode
-    normalModeOn(); // Normal mode, blue Power LED is on, all others are off
+    int successRead;     
     do {
         successRead = getID(); // Get the ID, sets readCard = to the read ID
         if (programMode) {
@@ -200,12 +204,12 @@ void loop () {
         if ( isMaster(readCard) ) {
         	programMode = true;
         	Serial.println("Hello Master - Entered Program Mode");
-            	Serial.println("Scan a PICC to ADD or REMOVE");
             	int count = EEPROM.read(0); // Read the first Byte of EEPROM that
-		Serial.print("I have "); // stores the number of ID's in EEPROM
+		Serial.print("I have ");    // stores the number of ID's in EEPROM
 		Serial.print(count);
 		Serial.print(" record(s) on EEPROM");
 		Serial.println("");
+		Serial.println("Scan a PICC to ADD or REMOVE");
         }
         else {
             if ( findID(readCard) ) {        // If not, see if the card is in the EEPROM 
