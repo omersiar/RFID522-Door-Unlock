@@ -198,9 +198,14 @@ void loop () {
 		}
     else {
         if ( isMaster(readCard) ) {
-            programMode = true;
-            Serial.println("Hello Master - Entered Program Mode");
-            Serial.println("Scan a PICC to ADD or REMOVE");
+        	programMode = true;
+        	Serial.println("Hello Master - Entered Program Mode");
+            	Serial.println("Scan a PICC to ADD or REMOVE");
+            	int count = EEPROM.read(0); // Read the first Byte of EEPROM that
+		Serial.print("I have "); // stores the number of ID's in EEPROM
+		Serial.print(count);
+		Serial.print(" record(s) on EEPROM");
+		Serial.println("");
         }
         else {
             if ( findID(readCard) ) {        // If not, see if the card is in the EEPROM 
