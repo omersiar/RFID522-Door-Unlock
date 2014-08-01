@@ -116,14 +116,6 @@
 #define blueLed 5
 #define relay 4
 
-/* 
- * buzzer on pin PWM 3 maybe you want that, 
- * if so uncomment this line and at void openDoor
- * and at void failed
- */ 
-
-//#define buzzer 3  
-
 boolean match = false; // initialize card match to false
 boolean programMode = false; // initialize programming mode to false
 
@@ -248,25 +240,25 @@ int getID() {
 
 ///////////////////////////////////////// Program Mode Leds ///////////////////////////////////
 void programModeOn() {
-    digitalWrite(redLed, LED_OFF); // Make sure blue LED is off
-    digitalWrite(greenLed, LED_ON); // Make sure blue LED is on
-    digitalWrite(blueLed, LED_OFF); // Make sure green LED is off
+    digitalWrite(redLed, LED_OFF); // Make sure red LED is off
+    digitalWrite(greenLed, LED_ON); // Make sure green LED is on
+    digitalWrite(blueLed, LED_OFF); // Make sure blue LED is off
     delay(200);
-    digitalWrite(redLed, LED_OFF); // Make sure blue LED is off
-    digitalWrite(greenLed, LED_OFF); // Make sure blue LED is off
-    digitalWrite(blueLed, LED_ON); // Make sure green LED is on
+    digitalWrite(redLed, LED_OFF); // Make sure red LED is off
+    digitalWrite(greenLed, LED_OFF); // Make sure green LED is off
+    digitalWrite(blueLed, LED_ON); // Make sure blue LED is on
     delay(200);
-    digitalWrite(redLed, LED_ON); // Make sure blue LED is on
-    digitalWrite(greenLed, LED_OFF); // Make sure blue LED is off
-    digitalWrite(blueLed, LED_OFF); // Make sure green LED is off
+    digitalWrite(redLed, LED_ON); // Make sure red LED is on
+    digitalWrite(greenLed, LED_OFF); // Make sure green LED is off
+    digitalWrite(blueLed, LED_OFF); // Make sure blue LED is off
     delay(200);
 }
 
 //////////////////////////////////////// Normal Mode Leds  ///////////////////////////////////
 void normalModeOn () {
-    digitalWrite(blueLed, LED_ON); // Power pin ON and ready to read card
-    digitalWrite(redLed, LED_OFF); // Make sure Green LED is off
-    digitalWrite(greenLed, LED_OFF); // Make sure Red LED is off
+    digitalWrite(blueLed, LED_ON); // Blue LED ON and ready to read card
+    digitalWrite(redLed, LED_OFF); // Make sure Red LED is off
+    digitalWrite(greenLed, LED_OFF); // Make sure Green LED is off
     digitalWrite(relay, HIGH); // Make sure Door is Locked
 }
 
@@ -292,23 +284,11 @@ void readID( int number ) {
 void writeID( byte a[] ) {
     if ( !findID( a ) ) { // Before we write to the EEPROM, check to see if we have seen this card before!
         int num = EEPROM.read(0); // Get the numer of used spaces, position 0 stores the number of ID cards
-        /*
-         Serial.print("Num: ");
-         Serial.print(num);
-         Serial.print(" \n");
-         */
         int start = ( num * 4 ) + 1; // Figure out where the next slot starts
         num++; // Increment the counter by one
         EEPROM.write( 0, num ); // Write the new count to the counter
         for ( int j = 0; j < 4; j++ ) { // Loop 4 times
             EEPROM.write( start+j, a[j] ); // Write the array values to EEPROM in the right position
-            /*
-             Serial.print("W[");
-             Serial.print(start+j);
-             Serial.print("] Value [");
-             Serial.print(a[j], HEX);
-             Serial.print("] \n");
-             */
         }
         successWrite();
     }
@@ -329,9 +309,6 @@ void deleteID( byte a[] ) {
         int looping; // The number of times the loop repeats
         int j;
         int count = EEPROM.read(0); // Read the first Byte of EEPROM that
-        // Serial.print("Count: "); // stores the number of ID's in EEPROM
-        // Serial.print(count);
-        // Serial.print("\n");
         slot = findIDSLOT( a ); //Figure out the slot number of the card to delete
         start = (slot * 4) - 3;
         looping = ((num - slot) * 4);
@@ -339,13 +316,6 @@ void deleteID( byte a[] ) {
         EEPROM.write( 0, num ); // Write the new count to the counter
         for ( j = 0; j < looping; j++ ) { // Loop the card shift times
             EEPROM.write( start+j, EEPROM.read(start+4+j)); // Shift the array values to 4 places earlier in the EEPROM
-            /*
-             Serial.print("W[");
-             Serial.print(start+j);
-             Serial.print("] Value [");
-             Serial.print(a[j], HEX);
-             Serial.print("] \n");
-             */
         }
         for ( int k = 0; k < 4; k++ ) { //Shifting loop
             EEPROM.write( start+j+k, 0);
@@ -359,24 +329,13 @@ boolean checkTwo ( byte a[], byte b[] ) {
     if ( a[0] != NULL ) // Make sure there is something in the array first
         match = true; // Assume they match at first
     for ( int k = 0; k < 4; k++ ) { // Loop 4 times
-        /*
-         Serial.print("[");
-         Serial.print(k);
-         Serial.print("] ReadCard [");
-         Serial.print(a[k], HEX);
-         Serial.print("] StoredCard [");
-         Serial.print(b[k], HEX);
-         Serial.print("] \n");
-         */
         if ( a[k] != b[k] ) // IF a != b then set match = false, one fails, all fail
             match = false;
     }
     if ( match ) { // Check to see if if match is still true
-        //Serial.print("Strings Match! \n");
         return true; // Return true
     }
     else  {
-        //Serial.print("Strings do not match \n");
         return false; // Return false
     }
 }
@@ -384,14 +343,10 @@ boolean checkTwo ( byte a[], byte b[] ) {
 ///////////////////////////////////////// Find Slot   ///////////////////////////////////
 int findIDSLOT( byte find[] ) {
     int count = EEPROM.read(0); // Read the first Byte of EEPROM that
-    //Serial.print("EEPROM Records: "); // stores the number of ID's in EEPROM
-    //Serial.print(count);
-    //Serial.println("");
     for ( int i = 1; i <= count; i++ ) { // Loop once for each EEPROM entry
 	readID(i); // Read an ID from EEPROM, it is stored in storedCard[6]
         if( checkTwo( find, storedCard ) ) { // Check to see if the storedCard read from EEPROM
-		// is the same as the find[] ID card passed
-        	// Serial.print("We have a matched card!!! \n");
+		                             // is the same as the find[] ID card passed
         	return i; // The slot number of the card
         	break; // Stop looking we found it
         }
@@ -401,19 +356,13 @@ int findIDSLOT( byte find[] ) {
 ///////////////////////////////////////// Find ID From EEPROM   ///////////////////////////////////
 boolean findID( byte find[] ) {
     int count = EEPROM.read(0); // Read the first Byte of EEPROM that
-    // Serial.print("Count: "); // stores the number of ID's in EEPROM
-    // Serial.print(count);
-    // Serial.print("\n");
     for ( int i = 1; i <= count; i++ ) {  // Loop once for each EEPROM entry
         readID(i); // Read an ID from EEPROM, it is stored in storedCard[6]
         if( checkTwo( find, storedCard ) ) {  // Check to see if the storedCard read from EEPROM
-            // is the same as the find[] ID card passed
-            // Serial.println("I have a record for this PICC");
             return true;
             break; // Stop looking we found it
         }
         else {  // If not, return false   
-            // Serial.println("No record matched on EEPROM for this PICC");
         }
     }
     return false;
@@ -496,10 +445,7 @@ void openDoor( int setDelay ) {
     digitalWrite(relay, LOW); // Unlock door!
     delay(setDelay); // Hold door lock open for 2 seconds
     digitalWrite(relay, HIGH); // Relock door
-    //analogWrite(buzzer, 30); // Buzzer on
     delay(2000); // Hold green LED on for 2 more seconds
-    //analogWrite(buzzer, 0); // Buzzer off
-    digitalWrite(greenLed, LED_OFF);	// Turn off green LED
 }
 
 ///////////////////////////////////////// Failed Access  ///////////////////////////////////
@@ -507,7 +453,5 @@ void failed() {
     digitalWrite(greenLed, LED_OFF); // Make sure green LED is off
     digitalWrite(blueLed, LED_OFF); // Make sure blue LED is off
     digitalWrite(redLed, LED_ON); // Turn on red LED
-    //analogWrite(buzzer, 30); // Buzzer on
     delay(1200);
-    //analogWrite(buzzer, 0); // Buzzer off
 }
