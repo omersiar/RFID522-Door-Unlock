@@ -158,7 +158,7 @@ void setup() {
 
 ///////////////////////////////////////// Main Loop ///////////////////////////////////
 void loop () {
-    int successRead;  \\ To keep if we have Successful Read from Reader
+    int successRead;  // To keep if we have Successful Read from Reader
     do {
         successRead = getID(); // sets successRead 1 when we get read from reader otherwise 0
         if (programMode) {
@@ -190,7 +190,7 @@ void loop () {
                         }
 		}
     else {
-        if ( isMaster(readCard) ) {  \\ If scanned card's ID matches Master Card's ID enter program mode
+        if ( isMaster(readCard) ) {  // If scanned card's ID matches Master Card's ID enter program mode
         	programMode = true;
         	Serial.println("Hello Master - Entered Program Mode");
             	int count = EEPROM.read(0); // Read the first Byte of EEPROM that
