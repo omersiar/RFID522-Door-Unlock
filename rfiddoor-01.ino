@@ -265,18 +265,8 @@ void normalModeOn () {
 //////////////////////////////////////// Read an ID from EEPROM //////////////////////////////
 void readID( int number ) {
     int start = (number * 4 ) - 3; // Figure out starting position
-    //Serial.print("Start: ");
-    //Serial.print(start);
-    //Serial.print("\n\n");
     for ( int i = 0; i < 4; i++ ) { // Loop 4 times to get the 4 Bytes
         storedCard[i] = EEPROM.read(start+i); // Assign values read from EEPROM to array
-        /*
-         Serial.print("Read [");
-         Serial.print(start+i);
-         Serial.print("] [");
-         Serial.print(storedCard[i], HEX);
-         Serial.print("] \n");
-         */
     }
 }
 
