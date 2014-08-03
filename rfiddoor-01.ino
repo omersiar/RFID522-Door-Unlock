@@ -37,7 +37,7 @@
  *
  * If you serious about coding and security
  * you should really check Mıfare's datasheet
- * We are going to use completely INSECURE way to
+ * We are going to use NOT so SECURE way to
  * Unlock a door.
  *
  * And there is a note on Datasheet which mentions aboout that
@@ -84,8 +84,7 @@
 
 /* Instead of a Relay maybe you want to use a servo
  * Servos can lock and unlock door locks too
- * There are examples out there, If you want you
- * only need to modify void openDoor
+ * There are examples out there.
  */
 
 // #include <Servo.h>
@@ -95,10 +94,8 @@
  * to control door lock a relay
  * (or some other hardware)
  * Used common anode led,digitalWriting HIGH turns OFF led
- * Care if you are going to use common cathode led
- * Simply comment out #define COMMON_ANODE,
- * If you want to use seperate Leds for each color
- * you also you need to comment
+ * Mind that if you are going to use common cathode led or
+ * just seperate leds, simply comment out #define COMMON_ANODE,
  */
  
 #define COMMON_ANODE
@@ -161,9 +158,9 @@ void setup() {
 
 ///////////////////////////////////////// Main Loop ///////////////////////////////////
 void loop () {
-    int successRead;     
+    int successRead;  \\ To keep if we have Successful Read from Reader
     do {
-        successRead = getID(); // Get the ID, sets readCard = to the read ID
+        successRead = getID(); // sets successRead 1 when we get read from reader otherwise 0
         if (programMode) {
         	programModeOn(); // Program Mode cycles through RGB waiting to read a new card
         }
@@ -193,7 +190,7 @@ void loop () {
                         }
 		}
     else {
-        if ( isMaster(readCard) ) {
+        if ( isMaster(readCard) ) {  \\ If scanned card's ID matches Master Card's ID enter program mode
         	programMode = true;
         	Serial.println("Hello Master - Entered Program Mode");
             	int count = EEPROM.read(0); // Read the first Byte of EEPROM that
@@ -206,11 +203,11 @@ void loop () {
         else {
             if ( findID(readCard) ) {        // If not, see if the card is in the EEPROM 
                 Serial.println("Welcome, You shall pass");
-                openDoor(300);                // If it is, open the door lock for 300 ms
+                openDoor(300);                // Open the door lock for 300 ms
             }
-            else {
+            else {				// If not, show that the ID was not valid
                 Serial.println("You shall not pass");
-                failed(); // If not, show that the ID was not valid
+                failed(); 
             }
         }
     }
