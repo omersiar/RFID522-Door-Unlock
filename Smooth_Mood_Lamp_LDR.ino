@@ -13,8 +13,6 @@
 // ---------------------------------------------------
 
 float RGB[3];
-int ldrPin = 0;     // LDR in Analog Input 0 to read the ambient light
-int ambientLight;   // variable to store the value of the ambient light
 int redLed   = 11;  // red LED in Digital Pin 11 (PWM)
 int greenLed = 10;  // green LED in Digital Pin 10 (PWM)
 int blueLed  = 9;   // blue LED in Digital Pin 9 (PWM)
@@ -35,17 +33,9 @@ void loop(){
     RGB[0]=255*abs(sin(x*(180/PI)));           // calculate the brightness for the red led
     RGB[1]=255*abs(sin((x+PI/3)*(180/PI)));    // calculate the brightness for the green led
     RGB[2]=255*abs(sin((x+(2*PI)/3)*(180/PI)));// calculate the brightness for the blue led
-    ambientLight=analogRead(ldrPin); // read an store the ambient light
-    if(ambientLight>600){ // start only if the ambient light is very low
-      //  write the brightness on the leds
       analogWrite(redLed,RGB[0]); 
       analogWrite(greenLed,RGB[1]);
       analogWrite(blueLed,RGB[2]);
-    }
-    else{
-      digitalWrite(redLed,LOW);
-      digitalWrite(greenLed,LOW);
-      digitalWrite(blueLed,LOW);
     }
     for(int i=0;i<3;i++){
       if(RGB[i]<1){
