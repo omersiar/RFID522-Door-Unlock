@@ -1,4 +1,4 @@
-Arduino
+Arduino RC522 RFID Door Unlocker
 =======
 
  * Arduino RC522 RFID Door Unlocker
