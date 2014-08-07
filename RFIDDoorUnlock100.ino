@@ -23,6 +23,7 @@
  * Security
  * 
  * To keep it simple we are going to use Tag's Unique IDs
+ * It's simple, a bit secure, but not hacker proof.
  *
  * MFRC522 Library also lets us to use some authentication
  * mechanism, writing blocks and reading back
