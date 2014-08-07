@@ -22,12 +22,7 @@
  * 
  * Security
  * 
- * To keep it simple we are going to use Tag's Unique IDs, 
- * But since this module and Tags are cheap, 
- * I guess their IDs not so Unique.
- *
- * I think it is not secure to only use Tags' UID
- * to verify Tags' users who want to unlock a door.
+ * To keep it simple we are going to use Tag's Unique IDs
  *
  * MFRC522 Library also lets us to use some authentication
  * mechanism, writing blocks and reading back
@@ -35,21 +30,8 @@
  * about reading and writing PICCs
  * here > http://makecourse.weebly.com/week10segment1.html
  *
- * If you serious about coding and security
- * you should really check Mıfare's datasheet
- * We are going to use NOT so SECURE way to
- * Unlock a door.
- *
- * And there is a note on Datasheet which mentions aboout that
- * Note: The use of Single Size UIDs (unique ones) might end soon, 
- * since the number of usable IDs is limited to approximately 
- * 3.7 billion pieces only. 
- *
  * If you rely on heavy security, figure it out how RFID system
  * can be secure yourself (personally very curious about it)
- *
- * Also there are always security
- * issues if there is a "LOCK" actually.
  * 
  * Credits
  *
@@ -72,13 +54,13 @@
  *
  * License
  *
- * You are FREE what to do with this code 
+ * You are FREE what to do with this code
  * Just give credits who put effort on this code
  *
  * "PICC" short for Proximity Integrated Circuit Card (RFID Tags)
  */
 
-#include <EEPROM.h>  // We are going to read and write PICC's UID from/to EEPROM
+#include <EEPROM.h>  // We are going to read and write PICC's UIDs from/to EEPROM
 #include <SPI.h>      // RC522 Module uses SPI protocol
 #include <MFRC522.h>   // Library for Mifare RC522 Devices
 
@@ -124,7 +106,7 @@ byte masterCard[4] = {0x47,0x9c,0x85,0xb5}; // Define master PICC's UID Here
  * Pin layout should be as follows (on Arduino Uno):
  * MOSI: Pin 11 / ICSP-4
  * MISO: Pin 12 / ICSP-1
- * SCK : Pin 13 / ISCP-3
+ * SCK : Pin 13 / ICSP-3
  * SS : Pin 10 (Configurable)
  * RST : Pin 9 (Configurable)
  * look MFRC522 Library for
@@ -154,9 +136,9 @@ void setup() {
 
 ///////////////////////////////////////// Main Loop ///////////////////////////////////
 void loop () {
-  int successRead;  // To keep if we have Successful Read from Reader
+  int successRead;  // Variable integer to keep if we have Successful Read from Reader
   do {
-    successRead = getID(); // sets successRead 1 when we get read from reader otherwise 0
+    successRead = getID(); // sets successRead to 1 when we get read from reader otherwise 0
     if (programMode) {
       programModeOn(); // Program Mode cycles through RGB waiting to read a new card
     }
@@ -424,7 +406,7 @@ void openDoor( int setDelay ) {
   digitalWrite(redLed, LED_OFF); // Turn off red LED	
   digitalWrite(greenLed, LED_ON); // Turn on green LED
   digitalWrite(relay, LOW); // Unlock door!
-  delay(setDelay); // Hold door lock open for 2 seconds
+  delay(setDelay); // Hold door lock open for given seconds
   digitalWrite(relay, HIGH); // Relock door
   delay(2000); // Hold green LED on for 2 more seconds
 }
