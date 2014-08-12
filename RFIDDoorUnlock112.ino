@@ -95,7 +95,7 @@
 #define greenLed 6
 #define blueLed 5
 #define relay 4
-//#define wipeB 3
+//#define wipeB 3 //Uncomment if you want to use WipeMode
 
 boolean match = false; // initialize card match to false
 boolean programMode = false; // initialize programming mode to false
@@ -127,25 +127,32 @@ void setup() {
   pinMode(blueLed, OUTPUT);
   pinMode(relay, OUTPUT);
   digitalWrite(relay, HIGH); // Make sure door is locked
-  /*
-  //Wipe Code if Button Pressed while setup run (powered on) it wipes EEPROM
-  int wipe = 0;  // variable integer to keep if wipe button pressed
-  pinMode(wipeB, INPUT);
-  wipe = digitalRead(wipeB);
-  if (wipe == HIGH) {     
-    wipeModeOn();   // Red Blue Led flashes to inform user we are going to wipe
-    delay(5000);    // Give user enough time to cancel operation
-    for (int i = 0; i < 1024; i++) { // Loop repeats equal to the number of array in EEPROM
-      EEPROM.write(i, 0);
-    }
-    wipe = 0;
-    digitalWrite(redLed, LOW);  
-  } 
-  */
+  
   //Protocol Configuration
   Serial.begin(9600);	 // Initialize serial communications with PC
   SPI.begin();           // MFRC522 Hardware uses SPI protocol
   mfrc522.PCD_Init();    // Initialize MFRC522 Hardware
+  
+  /* Wipe Mode Uncomment if you want to use
+  //Wipe Code if Button Pressed while setup run (powered on) it wipes EEPROM
+  int wipe = 0;  // variable integer to keep if wipe button pressed
+  pinMode(wipeB, INPUT_PULLUP);
+  wipe = digitalRead(wipeB);
+  if (wipe == LOW) {     
+    wipeModeOn();   // Red Blue Led flashes to inform user we are going to wipe
+    Serial.println("!!! Wipe Button Pressed !!!");
+    Serial.println("You have 5 seconds to Cancel");
+    Serial.println("This will be remove all records and cannot be undone");
+    delay(5000);    // Give user enough time to cancel operation
+    Serial.println("!!! Starting Wiping EEPROM !!!");
+    for (int i = 0; i < 1024; i++) { // Loop repeats equal to the number of array in EEPROM
+      EEPROM.write(i, 0);
+    }
+    Serial.println("!!! Wiped !!!");
+    digitalWrite(redLed, LOW);  
+  } 
+  */
+  // Everything ready
   Serial.println("##### RFID Door Unlocker #####");
   Serial.println("");
   Serial.println("Waiting PICCs to bo scanned :)");
@@ -445,20 +452,20 @@ void wipeModeOn()
   digitalWrite(redLed, LED_OFF); // Make sure red LED is off
   digitalWrite(greenLed, LED_OFF); // Make sure green LED is off
   delay(50);
-  digitalWrite(redLed, LED_ON); // Make sure blue LED is on 
-  digitalWrite(blueLed, LED_OFF); // Make sure green LED is off
+  digitalWrite(redLed, LED_ON); // Make sure red LED is on 
+  digitalWrite(blueLed, LED_OFF); // Make sure blue LED is off
   delay(200);
-  digitalWrite(redLed, LED_OFF); // Make sure blue LED is off 
-  digitalWrite(blueLed, LED_ON); // Make sure green LED is on
+  digitalWrite(redLed, LED_OFF); // Make sure red LED is off 
+  digitalWrite(blueLed, LED_ON); // Make sure blue LED is on
   delay(200);
-  digitalWrite(redLed, LED_ON); // Make sure blue LED is on 
-  digitalWrite(blueLed, LED_OFF); // Make sure green LED is off
+  digitalWrite(redLed, LED_ON); // Make sure red LED is on 
+  digitalWrite(blueLed, LED_OFF); // Make sure blue LED is off
   delay(200);
-  digitalWrite(redLed, LED_OFF); // Make sure blue LED is off 
-  digitalWrite(blueLed, LED_ON); // Make sure green LED is on
+  digitalWrite(redLed, LED_OFF); // Make sure red LED is off 
+  digitalWrite(blueLed, LED_ON); // Make sure blue LED is on
   delay(200);
-  digitalWrite(redLed, LED_ON); // Make sure blue LED is off 
-  digitalWrite(blueLed, LED_OFF); // Make sure green LED is on
+  digitalWrite(redLed, LED_ON); // Make sure red LED is on
+  digitalWrite(blueLed, LED_OFF); // Make sure blue LED is off
   delay(200);
 }
 */
