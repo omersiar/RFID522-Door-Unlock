@@ -141,8 +141,8 @@ void setup() {
     Serial.println("!!! Wipe Button Pressed !!!");
     Serial.println("You have 5 seconds to Cancel");
     Serial.println("This will be remove all records and cannot be undone");
-    if (digitalRead(wipeB) == LOW) {
-      delay(5000);    // Give user enough time to cancel operation
+    delay(5000);    // Give user enough time to cancel operation
+    if (digitalRead(wipeB) == LOW) {  // If button still pressed, wipe that EEPROM down
       Serial.println("!!! Starting Wiping EEPROM !!!");
       for (int i = 0; i < 1024; i++) { // Loop repeats equal to the number of array in EEPROM
         EEPROM.write(i, 0);
