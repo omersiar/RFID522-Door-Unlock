@@ -95,6 +95,7 @@
 #define greenLed 6
 #define blueLed 5
 #define relay 4
+#define wipeB 3
 
 boolean match = false; // initialize card match to false
 boolean programMode = false; // initialize programming mode to false
