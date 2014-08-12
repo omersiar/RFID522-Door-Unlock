@@ -74,7 +74,7 @@
 
 /* For visualizing whats going on hardware
  * we need some leds and
- * to control door lock a relay
+ * to control door lock a relay and a wipe button
  * (or some other hardware)
  * Used common anode led,digitalWriting HIGH turns OFF led
  * Mind that if you are going to use common cathode led or
@@ -95,7 +95,7 @@
 #define greenLed 6
 #define blueLed 5
 #define relay 4
-#define wipeB 3
+//#define wipeB 3
 
 boolean match = false; // initialize card match to false
 boolean programMode = false; // initialize programming mode to false
@@ -127,6 +127,21 @@ void setup() {
   pinMode(blueLed, OUTPUT);
   pinMode(relay, OUTPUT);
   digitalWrite(relay, HIGH); // Make sure door is locked
+  /*
+  //Wipe Code if Button Pressed while setup run (powered on) it wipes EEPROM
+  int wipe = 0;  // variable integer to keep if wipe button pressed
+  pinMode(wipeB, INPUT);
+  wipe = digitalRead(wipeB);
+  if (wipe == HIGH) {     
+    wipeModeOn();   // Red Blue Led flashes to inform user we are going to wipe
+    delay(5000);    // Give user enough time to cancel operation
+    for (int i = 0; i < 1024; i++) { // Loop repeats equal to the number of array in EEPROM
+      EEPROM.write(i, 0);
+    }
+    wipe = 0;
+    digitalWrite(redLed, LOW);  
+  } 
+  */
   //Protocol Configuration
   Serial.begin(9600);	 // Initialize serial communications with PC
   SPI.begin();           // MFRC522 Hardware uses SPI protocol
@@ -420,3 +435,30 @@ void failed() {
   digitalWrite(redLed, LED_ON); // Turn on red LED
   delay(1200);
 }
+
+///////////////////////////////////////// Wipe Mode Leds  ///////////////////////////////////
+// Controls LED's for wipe mode, cycles through Red and Blue
+/*
+void wipeModeOn()
+{
+  digitalWrite(blueLed, LED_OFF); // Make sure blue LED is off
+  digitalWrite(redLed, LED_OFF); // Make sure red LED is off
+  digitalWrite(greenLed, LED_OFF); // Make sure green LED is off
+  delay(50);
+  digitalWrite(redLed, LED_ON); // Make sure blue LED is on 
+  digitalWrite(blueLed, LED_OFF); // Make sure green LED is off
+  delay(200);
+  digitalWrite(redLed, LED_OFF); // Make sure blue LED is off 
+  digitalWrite(blueLed, LED_ON); // Make sure green LED is on
+  delay(200);
+  digitalWrite(redLed, LED_ON); // Make sure blue LED is on 
+  digitalWrite(blueLed, LED_OFF); // Make sure green LED is off
+  delay(200);
+  digitalWrite(redLed, LED_OFF); // Make sure blue LED is off 
+  digitalWrite(blueLed, LED_ON); // Make sure green LED is on
+  delay(200);
+  digitalWrite(redLed, LED_ON); // Make sure blue LED is off 
+  digitalWrite(blueLed, LED_OFF); // Make sure green LED is on
+  delay(200);
+}
+*/
