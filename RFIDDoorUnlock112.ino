@@ -135,18 +135,18 @@ void setup() {
   
   /* Wipe Mode Uncomment if you want to use
   //Wipe Code if Button Pressed while setup run (powered on) it wipes EEPROM
-  int wipe = 0;  // variable integer to keep if wipe button pressed
   pinMode(wipeB, INPUT_PULLUP);
-  wipe = digitalRead(wipeB);
-  if (wipe == LOW) {     
+  if (digitalRead(wipeB) == LOW) {     
     wipeModeOn();   // Red Blue Led flashes to inform user we are going to wipe
     Serial.println("!!! Wipe Button Pressed !!!");
     Serial.println("You have 5 seconds to Cancel");
     Serial.println("This will be remove all records and cannot be undone");
-    delay(5000);    // Give user enough time to cancel operation
-    Serial.println("!!! Starting Wiping EEPROM !!!");
-    for (int i = 0; i < 1024; i++) { // Loop repeats equal to the number of array in EEPROM
-      EEPROM.write(i, 0);
+    if (digitalRead(wipeB) == LOW) {
+      delay(5000);    // Give user enough time to cancel operation
+      Serial.println("!!! Starting Wiping EEPROM !!!");
+      for (int i = 0; i < 1024; i++) { // Loop repeats equal to the number of array in EEPROM
+        EEPROM.write(i, 0);
+      }
     }
     Serial.println("!!! Wiped !!!");
     digitalWrite(redLed, LOW);  
