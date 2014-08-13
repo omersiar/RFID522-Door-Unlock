@@ -137,7 +137,7 @@ void setup() {
   //Wipe Code if Button Pressed while setup run (powered on) it wipes EEPROM
   pinMode(wipeB, INPUT_PULLUP);
   if (digitalRead(wipeB) == LOW) {     
-    wipeModeOn();   // Red Blue Led flashes to inform user we are going to wipe
+    wipeModeOn();   // Red Blue Led flashes then red led stays to inform user we are going to wipe
     Serial.println("!!! Wipe Button Pressed !!!");
     Serial.println("You have 5 seconds to Cancel");
     Serial.println("This will be remove all records and cannot be undone");
@@ -147,9 +147,10 @@ void setup() {
       for (int i = 0; i < 1024; i++) { // Loop repeats equal to the number of array in EEPROM
         EEPROM.write(i, 0);
       }
+      Serial.println("!!! Wiped !!!");
+      digitalWrite(redLed, LOW);
     }
-    Serial.println("!!! Wiped !!!");
-    digitalWrite(redLed, LOW);  
+    Serial.println("!!! Operation Cancelled !!!");
   } 
   */
   // Everything ready
