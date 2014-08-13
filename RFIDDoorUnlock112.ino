@@ -127,12 +127,12 @@ void setup() {
   pinMode(blueLed, OUTPUT);
   pinMode(relay, OUTPUT);
   digitalWrite(relay, HIGH); // Make sure door is locked
-  
+
   //Protocol Configuration
   Serial.begin(9600);	 // Initialize serial communications with PC
   SPI.begin();           // MFRC522 Hardware uses SPI protocol
   mfrc522.PCD_Init();    // Initialize MFRC522 Hardware
-  
+
   //Wipe Code if Button Pressed while setup run (powered on) it wipes EEPROM
   pinMode(wipeB, INPUT_PULLUP);  // Enable pin's pull up resistor
   if (digitalRead(wipeB) == LOW) {     // when button pressed pin should get low
@@ -143,8 +143,13 @@ void setup() {
     delay(5000);    // Give user enough time to cancel operation
     if (digitalRead(wipeB) == LOW) {  // If button still pressed, wipe that EEPROM down
       Serial.println("!!! Starting Wiping EEPROM !!!");
-      for (int i = 0; i < 1024; i++) { // Loop repeats equal to the number of array in EEPROM
-        EEPROM.write(i, 0);
+      for (byte x=0; x<1024; x=x+1){
+        if (EEPROM.read(x) == 0){
+          // do nothing, already clear, go to the next address
+        } 
+        else{
+          EEPROM.write(x, 0); // write takes 3.3mS
+        }
       }
       Serial.println("!!! Wiped !!!");
       digitalWrite(redLed, LOW);
