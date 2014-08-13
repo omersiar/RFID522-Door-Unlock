@@ -152,6 +152,7 @@ void setup() {
         }
       }
       Serial.println("!!! Wiped !!!");
+      wipeModeOn(); // visualize successful wipe
       digitalWrite(redLed, LOW);
     }
     else {
