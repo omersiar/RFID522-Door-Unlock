@@ -143,7 +143,7 @@ void setup() {
     delay(5000);    // Give user enough time to cancel operation
     if (digitalRead(wipeB) == LOW) {  // If button still pressed, wipe that EEPROM down
       Serial.println("!!! Starting Wiping EEPROM !!!");
-      for (byte x=0; x<1024; x=x+1){
+      for (int x=0; x<1024; x=x+1){
         if (EEPROM.read(x) == 0){
           // do nothing, already clear, go to the next address
         } 
