@@ -95,7 +95,7 @@
 #define greenLed 6
 #define blueLed 5
 #define relay 4
-//#define wipeB 3 //Uncomment if you want to use WipeMode
+#define wipeB 3 // Button pin for WipeMode
 
 boolean match = false; // initialize card match to false
 boolean programMode = false; // initialize programming mode to false
@@ -133,10 +133,9 @@ void setup() {
   SPI.begin();           // MFRC522 Hardware uses SPI protocol
   mfrc522.PCD_Init();    // Initialize MFRC522 Hardware
   
-  /* Wipe Mode Uncomment if you want to use
   //Wipe Code if Button Pressed while setup run (powered on) it wipes EEPROM
-  pinMode(wipeB, INPUT_PULLUP);
-  if (digitalRead(wipeB) == LOW) {     
+  pinMode(wipeB, INPUT_PULLUP);  // Enable pin's pull up resistor
+  if (digitalRead(wipeB) == LOW) {     // when button pressed pin should get low
     wipeModeOn();   // Red Blue Led flashes then red led stays to inform user we are going to wipe
     Serial.println("!!! Wipe Button Pressed !!!");
     Serial.println("You have 5 seconds to Cancel");
@@ -150,9 +149,10 @@ void setup() {
       Serial.println("!!! Wiped !!!");
       digitalWrite(redLed, LOW);
     }
-    Serial.println("!!! Operation Cancelled !!!");
+    else {
+      Serial.println("!!! Operation Cancelled !!!");
+    }
   } 
-  */
   // Everything ready
   Serial.println("##### RFID Door Unlocker #####");
   Serial.println("");
@@ -446,9 +446,7 @@ void failed() {
 
 ///////////////////////////////////////// Wipe Mode Leds  ///////////////////////////////////
 // Controls LED's for wipe mode, cycles through Red and Blue
-/*
-void wipeModeOn()
-{
+void wipeModeOn() {
   digitalWrite(blueLed, LED_OFF); // Make sure blue LED is off
   digitalWrite(redLed, LED_OFF); // Make sure red LED is off
   digitalWrite(greenLed, LED_OFF); // Make sure green LED is off
@@ -469,4 +467,3 @@ void wipeModeOn()
   digitalWrite(blueLed, LED_OFF); // Make sure blue LED is off
   delay(200);
 }
-*/
