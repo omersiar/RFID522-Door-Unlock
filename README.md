@@ -9,25 +9,25 @@ You define a Master Card which is act as Programmer
 then you can able to choose card holders who able to unlock
 the door or not.
 
- * Easy User Interface
+ * **Easy User Interface**
 
 Just one RFID tag needed whether Delete or Add Tags
 You can choose to use Leds for output or
 Serial LCD module to inform users. Or you can use both
 
- * Stores Information on EEPROM
+ * **Stores Information on EEPROM**
 
 Information stored on non volatile memory to preserve
 Users' tag, Master Card ID will be hard coded on Arduino's Flash
 No Information lost if power lost. EEPROM has unlimited
 Read cycle but 100,000 limited Write cycle. 
 
- * Security
+ * **Security**
 
 To keep it simple we are going to use Tag's Unique IDs
 It's simple, a bit secure, but not hacker proof.
 
- * Additional Information
+ * **Additional Information**
 
 MFRC522 Library also lets us to use some authentication
 mechanism, writing blocks and reading back
@@ -35,7 +35,7 @@ and there is great example and piece of code
 about reading and writing PICCs
 here > http://makecourse.weebly.com/week10segment1.html
 
- * Credits
+ * **Credits**
 
 Omer Siar Baysal who put together this project
 
@@ -54,7 +54,7 @@ Arduino Forum Member luisilva for His Massive Code Correction
 http://forum.arduino.cc/index.php?topic=257036.0
 http://forum.arduino.cc/index.php?action=profile;u=198897
 
- * License
+ * **License**
 
 You are FREE what to do with this code 
 Just give credits who put effort on this code
