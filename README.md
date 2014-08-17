@@ -17,8 +17,8 @@ Serial LCD module to inform users. Or you can use both
 
  * **Stores Information on EEPROM**
 
-Information stored on non volatile memory to preserve
-Users' tag, Master Card ID will be hard coded on Arduino's Flash
+Information stored on non volatile Arduino's EEPROM 
+memory to preserve Users' tag and Master Card
 No Information lost if power lost. EEPROM has unlimited
 Read cycle but 100,000 limited Write cycle. 
 
