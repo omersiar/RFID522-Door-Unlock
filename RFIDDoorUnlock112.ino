@@ -102,7 +102,7 @@ boolean programMode = false; // initialize programming mode to false
 
 byte storedCard[4];   // Stores an ID read from EEPROM
 byte readCard[4];           // Stores scanned ID read from RFID Module
-byte masterCard[4] = {0x47,0x9c,0x85,0xb5}; // Define master PICC's UID Here
+byte masterCard[4]; //????
 
 /* We need to define MFRC522's pins and create instance
  * Pin layout should be as follows (on Arduino Uno):
@@ -158,12 +158,34 @@ void setup() {
     else {
       Serial.println("!!! Operation Cancelled !!!");
     }
-  } 
-  // Everything ready
+  }
+  if (EEPROM.read(1) == 0) {  // Look EEPROM if Master Card defined, EEPROM address 1 holds if defined
+    Serial.println("No Master Card Defined");
+    Serial.println("Scan A PICC to Define as Master Card");
+    int successRead; // Variable integer to keep if we have Successful Read from Reader
+    do {
+      successRead = getID(); // sets successRead to 1 when we get read from reader otherwise 0
+      digitalWrite(blueLed, HIGH); // Visualize Master Card need to be defined
+      delay(200);
+      digitalWrite(blueLed, LOW);
+    }
+    while (!successRead); //the program will not go further while you not get a successful read
+    for ( int j = 0; j < 4; j++ ) { // Loop 4 times
+      EEPROM.write( 3 +j, readCard[j] ); // Write scanned PICC's UID to EEPROM, start from address 3
+      EEPROM.write(1,1); //Now Master Card Defined so set it on EEPROM too.
+      Serial.println("Master Card Defined");
+    }
+  }
   Serial.println("##### RFID Door Unlocker #####");
+  Serial.println("Master Card's UID");
+  for ( int i = 0; i < 4; i++ ) { // Read Master Card's UID from EEPROM
+    masterCard[i] = EEPROM.read(3+i); //Write it to masterCard
+    Serial.print(masterCard[i], HEX);
+  }
   Serial.println("");
   Serial.println("Waiting PICCs to bo scanned :)");
 }
+
 
 ///////////////////////////////////////// Main Loop ///////////////////////////////////
 void loop () {
@@ -268,7 +290,7 @@ void normalModeOn () {
 
 //////////////////////////////////////// Read an ID from EEPROM //////////////////////////////
 void readID( int number ) {
-  int start = (number * 4 ) - 3; // Figure out starting position
+  int start = (number * 4 ) + 2; // Figure out starting position
   for ( int i = 0; i < 4; i++ ) { // Loop 4 times to get the 4 Bytes
     storedCard[i] = EEPROM.read(start+i); // Assign values read from EEPROM to array
   }
@@ -278,7 +300,7 @@ void readID( int number ) {
 void writeID( byte a[] ) {
   if ( !findID( a ) ) { // Before we write to the EEPROM, check to see if we have seen this card before!
     int num = EEPROM.read(0); // Get the numer of used spaces, position 0 stores the number of ID cards
-    int start = ( num * 4 ) + 1; // Figure out where the next slot starts
+    int start = ( num * 4 ) + 6; // Figure out where the next slot starts
     num++; // Increment the counter by one
     EEPROM.write( 0, num ); // Write the new count to the counter
     for ( int j = 0; j < 4; j++ ) { // Loop 4 times
@@ -299,12 +321,12 @@ void deleteID( byte a[] ) {
   else {
     int num = EEPROM.read(0); // Get the numer of used spaces, position 0 stores the number of ID cards
     int slot; // Figure out the slot number of the card
-    int start;// = ( num * 4 ) + 1; // Figure out where the next slot starts
+    int start;// = ( num * 4 ) + 6; // Figure out where the next slot starts
     int looping; // The number of times the loop repeats
     int j;
     int count = EEPROM.read(0); // Read the first Byte of EEPROM that
     slot = findIDSLOT( a ); //Figure out the slot number of the card to delete
-    start = (slot * 4) - 3;
+    start = (slot * 4) + 2;
     looping = ((num - slot) * 4);
     num--; // Decrement the counter by one
     EEPROM.write( 0, num ); // Write the new count to the counter
