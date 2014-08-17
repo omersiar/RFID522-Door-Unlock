@@ -15,10 +15,10 @@
  *
  * Stores Information on EEPROM
  *
- * Information stored on non volatile memory to preserve
- * Users' tag, Master Card ID will be hard coded on Arduino's Flash
- * No Information lost if power lost. EEPROM has unlimited
- * Read cycle but 100,000 limited Write cycle. 
+ * Information stored on non volatile Arduino's EEPROM 
+ * memory to preserve Users' tag and Master Card
+ * No Information lost if power lost. 
+ * EEPROM has unlimited Read cycle but 100,000 limited Write cycle. 
  * 
  * Security
  * 
@@ -100,9 +100,11 @@
 boolean match = false; // initialize card match to false
 boolean programMode = false; // initialize programming mode to false
 
+int successRead; // Variable integer to keep if we have Successful Read from Reader
+
 byte storedCard[4];   // Stores an ID read from EEPROM
 byte readCard[4];           // Stores scanned ID read from RFID Module
-byte masterCard[4] = {0x47,0x9c,0x85,0xb5}; // Define master PICC's UID Here
+byte masterCard[4]; // Stores master card's ID read from EEPROM
 
 /* We need to define MFRC522's pins and create instance
  * Pin layout should be as follows (on Arduino Uno):
@@ -135,13 +137,13 @@ void setup() {
 
   //Wipe Code if Button Pressed while setup run (powered on) it wipes EEPROM
   pinMode(wipeB, INPUT_PULLUP);  // Enable pin's pull up resistor
-  if (digitalRead(wipeB) == LOW) {     // when button pressed pin should get low
+  if (digitalRead(wipeB) == LOW) {     // when button pressed pin should get low, button connected to ground
     wipeModeOn();   // Red Blue Led flashes then red led stays to inform user we are going to wipe
     Serial.println("!!! Wipe Button Pressed !!!");
     Serial.println("You have 5 seconds to Cancel");
     Serial.println("This will be remove all records and cannot be undone");
     delay(5000);    // Give user enough time to cancel operation
-    if (digitalRead(wipeB) == LOW) {  // If button still pressed, wipe that EEPROM down
+    if (digitalRead(wipeB) == LOW) {  // If button still be pressed, wipe EEPROM
       Serial.println("!!! Starting Wiping EEPROM !!!");
       for (int x=0; x<1024; x=x+1){
         if (EEPROM.read(x) == 0){
@@ -153,21 +155,44 @@ void setup() {
       }
       Serial.println("!!! Wiped !!!");
       wipeModeOn(); // visualize successful wipe
-      digitalWrite(redLed, LOW);
+      digitalWrite(redLed, LED_OFF);
     }
     else {
-      Serial.println("!!! Operation Cancelled !!!");
+      Serial.println("!!! Wiping Cancelled !!!");
+      digitalWrite(redLed, LED_OFF);
     }
-  } 
-  // Everything ready
+  }
+  //Check if master card defined, if not let user choose a master card
+  if (EEPROM.read(1) == 0) {  // Look EEPROM if Master Card defined, EEPROM address 1 holds if defined
+    Serial.println("No Master Card Defined");
+    Serial.println("Scan A PICC to Define as Master Card");
+    do {
+      successRead = getID(); // sets successRead to 1 when we get read from reader otherwise 0
+      digitalWrite(blueLed, LED_ON); // Visualize Master Card need to be defined
+      delay(300);
+      digitalWrite(blueLed, LED_OFF);
+      delay(300);
+    }
+    while (!successRead); //the program will not go further while you not get a successful read
+    for ( int j = 0; j < 4; j++ ) { // Loop 4 times
+      EEPROM.write( 3 +j, readCard[j] ); // Write scanned PICC's UID to EEPROM, start from address 3
+      EEPROM.write(1,1); //Now Master Card Defined so set it on EEPROM too.
+    }
+    Serial.println("Master Card Defined");
+  }
   Serial.println("##### RFID Door Unlocker #####");
+  Serial.println("Master Card's UID");
+  for ( int i = 0; i < 4; i++ ) { // Read Master Card's UID from EEPROM
+    masterCard[i] = EEPROM.read(3+i); //Write it to masterCard
+    Serial.print(masterCard[i], HEX);
+  }
   Serial.println("");
   Serial.println("Waiting PICCs to bo scanned :)");
 }
 
+
 ///////////////////////////////////////// Main Loop ///////////////////////////////////
 void loop () {
-  int successRead;  // Variable integer to keep if we have Successful Read from Reader
   do {
     successRead = getID(); // sets successRead to 1 when we get read from reader otherwise 0
     if (programMode) {
@@ -233,7 +258,7 @@ int getID() {
   }
   // There are Mifare PICCs which have 4 byte or 7 byte UID care if you use 7 byte PICC
   Serial.println("Scanned PICC's UID:");
-  for (byte i = 0; i < mfrc522.uid.size; i++) {  // for size of uid.size write uid.uidByte to readCard
+  for (int i = 0; i < mfrc522.uid.size; i++) {  // for size of uid.size write uid.uidByte to readCard
     readCard[i] = mfrc522.uid.uidByte[i];
     Serial.print(readCard[i], HEX);
   }
@@ -268,7 +293,7 @@ void normalModeOn () {
 
 //////////////////////////////////////// Read an ID from EEPROM //////////////////////////////
 void readID( int number ) {
-  int start = (number * 4 ) - 3; // Figure out starting position
+  int start = (number * 4 ) + 3; // Figure out starting position
   for ( int i = 0; i < 4; i++ ) { // Loop 4 times to get the 4 Bytes
     storedCard[i] = EEPROM.read(start+i); // Assign values read from EEPROM to array
   }
@@ -278,7 +303,7 @@ void readID( int number ) {
 void writeID( byte a[] ) {
   if ( !findID( a ) ) { // Before we write to the EEPROM, check to see if we have seen this card before!
     int num = EEPROM.read(0); // Get the numer of used spaces, position 0 stores the number of ID cards
-    int start = ( num * 4 ) + 1; // Figure out where the next slot starts
+    int start = ( num * 4 ) + 7; // Figure out where the next slot starts
     num++; // Increment the counter by one
     EEPROM.write( 0, num ); // Write the new count to the counter
     for ( int j = 0; j < 4; j++ ) { // Loop 4 times
@@ -299,12 +324,12 @@ void deleteID( byte a[] ) {
   else {
     int num = EEPROM.read(0); // Get the numer of used spaces, position 0 stores the number of ID cards
     int slot; // Figure out the slot number of the card
-    int start;// = ( num * 4 ) + 1; // Figure out where the next slot starts
+    int start;// = ( num * 4 ) + 6; // Figure out where the next slot starts
     int looping; // The number of times the loop repeats
     int j;
     int count = EEPROM.read(0); // Read the first Byte of EEPROM that
     slot = findIDSLOT( a ); //Figure out the slot number of the card to delete
-    start = (slot * 4) - 3;
+    start = (slot * 4) + 3;
     looping = ((num - slot) * 4);
     num--; // Decrement the counter by one
     EEPROM.write( 0, num ); // Write the new count to the counter
