@@ -15,10 +15,10 @@
  *
  * Stores Information on EEPROM
  *
- * Information stored on non volatile memory to preserve
- * Users' tag, Master Card ID will be hard coded on Arduino's Flash
- * No Information lost if power lost. EEPROM has unlimited
- * Read cycle but 100,000 limited Write cycle. 
+ * Information stored on non volatile Arduino's EEPROM 
+ * memory to preserve Users' tag and Master Card
+ * No Information lost if power lost. 
+ * EEPROM has unlimited Read cycle but 100,000 limited Write cycle. 
  * 
  * Security
  * 
@@ -100,9 +100,11 @@
 boolean match = false; // initialize card match to false
 boolean programMode = false; // initialize programming mode to false
 
+int successRead; // Variable integer to keep if we have Successful Read from Reader
+
 byte storedCard[4];   // Stores an ID read from EEPROM
 byte readCard[4];           // Stores scanned ID read from RFID Module
-byte masterCard[4]; //????
+byte masterCard[4]; // Stores master card's ID read from EEPROM
 
 /* We need to define MFRC522's pins and create instance
  * Pin layout should be as follows (on Arduino Uno):
@@ -135,13 +137,13 @@ void setup() {
 
   //Wipe Code if Button Pressed while setup run (powered on) it wipes EEPROM
   pinMode(wipeB, INPUT_PULLUP);  // Enable pin's pull up resistor
-  if (digitalRead(wipeB) == LOW) {     // when button pressed pin should get low
+  if (digitalRead(wipeB) == LOW) {     // when button pressed pin should get low, button connected to ground
     wipeModeOn();   // Red Blue Led flashes then red led stays to inform user we are going to wipe
     Serial.println("!!! Wipe Button Pressed !!!");
     Serial.println("You have 5 seconds to Cancel");
     Serial.println("This will be remove all records and cannot be undone");
     delay(5000);    // Give user enough time to cancel operation
-    if (digitalRead(wipeB) == LOW) {  // If button still pressed, wipe that EEPROM down
+    if (digitalRead(wipeB) == LOW) {  // If button still be pressed, wipe EEPROM
       Serial.println("!!! Starting Wiping EEPROM !!!");
       for (int x=0; x<1024; x=x+1){
         if (EEPROM.read(x) == 0){
@@ -156,7 +158,7 @@ void setup() {
       digitalWrite(redLed, LOW);
     }
     else {
-      Serial.println("!!! Operation Cancelled !!!");
+      Serial.println("!!! Wiping Cancelled !!!");
     }
   }
   if (EEPROM.read(1) == 0) {  // Look EEPROM if Master Card defined, EEPROM address 1 holds if defined
@@ -189,7 +191,6 @@ void setup() {
 
 ///////////////////////////////////////// Main Loop ///////////////////////////////////
 void loop () {
-  int successRead;  // Variable integer to keep if we have Successful Read from Reader
   do {
     successRead = getID(); // sets successRead to 1 when we get read from reader otherwise 0
     if (programMode) {
