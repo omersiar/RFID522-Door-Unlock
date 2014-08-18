@@ -163,7 +163,7 @@ void setup() {
     }
   }
   //Check if master card defined, if not let user choose a master card
-  if (EEPROM.read(1) == 0) {  // Look EEPROM if Master Card defined, EEPROM address 1 holds if defined
+  if (EEPROM.read(1) != 1) {  // Look EEPROM if Master Card defined, EEPROM address 1 holds if defined
     Serial.println("No Master Card Defined");
     Serial.println("Scan A PICC to Define as Master Card");
     do {
