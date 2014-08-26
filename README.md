@@ -1,6 +1,9 @@
 Arduino RC522 RFID Door Unlocker
 =======
 
+More info on: 
+http://forum.arduino.cc/index.php?topic=256260
+
 July/2014 Omer Siar Baysal
 
 Unlocks a Door (controls a relay actually)
