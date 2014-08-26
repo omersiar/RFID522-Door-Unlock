@@ -129,7 +129,10 @@ void setup() {
   pinMode(blueLed, OUTPUT);
   pinMode(relay, OUTPUT);
   digitalWrite(relay, HIGH); // Make sure door is locked
-
+  digitalWrite(redLed, LED_OFF); // Make sure led is off
+  digitalWrite(greenLed, LED_OFF); // Make sure led is off
+  digitalWrite(blueLed, LED_OFF); // Make sure led is off
+  
   //Protocol Configuration
   Serial.begin(9600);	 // Initialize serial communications with PC
   SPI.begin();           // MFRC522 Hardware uses SPI protocol
