@@ -186,8 +186,8 @@ void setup() {
     while (!successRead); //the program will not go further while you not get a successful read
     for ( int j = 0; j < 4; j++ ) { // Loop 4 times
       EEPROM.write( 2 +j, readCard[j] ); // Write scanned PICC's UID to EEPROM, start from address 3
-      EEPROM.write(1,1); //Now Master Card Defined so set it on EEPROM too.
     }
+    EEPROM.write(1,1); //Write to EEPROM we defined Master Card.
     Serial.println("Master Card Defined");
   }
   Serial.println("##### RFID Door Unlocker #####");
@@ -337,7 +337,7 @@ void deleteID( byte a[] ) {
     int start;// = ( num * 4 ) + 6; // Figure out where the next slot starts
     int looping; // The number of times the loop repeats
     int j;
-    int count = EEPROM.read(0); // Read the first Byte of EEPROM that
+    int count = EEPROM.read(0); // Read the first Byte of EEPROM that stores number of cards
     slot = findIDSLOT( a ); //Figure out the slot number of the card to delete
     start = (slot * 4) + 2;
     looping = ((num - slot) * 4);
@@ -373,7 +373,7 @@ boolean checkTwo ( byte a[], byte b[] ) {
 int findIDSLOT( byte find[] ) {
   int count = EEPROM.read(0); // Read the first Byte of EEPROM that
   for ( int i = 1; i <= count; i++ ) { // Loop once for each EEPROM entry
-    readID(i); // Read an ID from EEPROM, it is stored in storedCard[6]
+    readID(i); // Read an ID from EEPROM, it is stored in storedCard[4]
     if( checkTwo( find, storedCard ) ) { // Check to see if the storedCard read from EEPROM
       // is the same as the find[] ID card passed
       return i; // The slot number of the card
@@ -386,7 +386,7 @@ int findIDSLOT( byte find[] ) {
 boolean findID( byte find[] ) {
   int count = EEPROM.read(0); // Read the first Byte of EEPROM that
   for ( int i = 1; i <= count; i++ ) {  // Loop once for each EEPROM entry
-    readID(i); // Read an ID from EEPROM, it is stored in storedCard[6]
+    readID(i); // Read an ID from EEPROM, it is stored in storedCard[4]
     if( checkTwo( find, storedCard ) ) {  // Check to see if the storedCard read from EEPROM
       return true;
       break; // Stop looking we found it
