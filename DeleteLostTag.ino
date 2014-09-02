@@ -23,7 +23,6 @@ byte deleteCard[4] ={0x12,0x34,0x56,0x78};  // Enter your lost card's UID Here
 #define blueLed 5
 
 boolean match = false; // initialize card match to false
-int successRead; // Variable integer to keep if we have Successful Read from Reader
 byte storedCard[4];   // Stores an ID read from EEPROM
 
 void setup() {
@@ -37,9 +36,24 @@ void setup() {
   
   //Protocol Configuration
   Serial.begin(9600);	 // Initialize serial communications with PC
-
-  Serial.println("Now Ready To Delete");
+  
+  int count = EEPROM.read(0); // Read the first Byte of EEPROM that
+  Serial.print("I have ");    // stores the number of ID's in EEPROM
+  Serial.print(count);
+  Serial.print(" record(s) on EEPROM");
+  Serial.println("");
+  
+  Serial.println("UID to Delete");
+  for (int i = 0; i < 4; i++) {  // 
+    Serial.print(deleteCard[i], HEX);
+  }
+  Serial.println("");
+  
   deleteID(deleteCard); //Try to delete
+  /* This will find the given UID (deleteCard) from EEPROM
+   * and delete it and Shift remaining records to 4 byte earlier.
+   * Blue Led will flash on success, Red Led will flash on fail.
+   */
 }
 
 void loop() {
