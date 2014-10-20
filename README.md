@@ -1,4 +1,4 @@
-Arduino RC522 RFID Door Unlocker
+Arduino RC522 RFID Access Control
 =======
 
 More info on: 
@@ -6,11 +6,18 @@ http://forum.arduino.cc/index.php?topic=256260
 
 July/2014 Omer Siar Baysal
 
-Unlocks a Door (controls a relay actually)
-using a RC522 RFID reader with SPI interface on your Arduino
+ * **Warning:**
+ 
+With 2.0.5 version you can define master card without need
+to be hard coded it's UID. Make sure you wiped EEPROM.
+
+--------
+
+Arduino RFID Access Control using a RC522 RFID 
+reader with SPI interface on your Arduino
 You define a Master Card which is act as Programmer
-then you can able to choose card holders who able to unlock
-the door or not.
+then you can able to choose card holders 
+who will granted access or not
 
  * **Easy User Interface**
 
