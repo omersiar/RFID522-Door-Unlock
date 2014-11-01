@@ -216,10 +216,10 @@ void loop () {
   }
   while (!successRead); //the program will not go further while you not get a successful read
   if (programMode) {
-    programMode = false;  // next time will enter in normal mode
     if ( isMaster(readCard) ) {  //If master card scanned again exit program mode
       Serial.println("This is Master Card"); 
       Serial.println("Exiting Program Mode");
+      programMode = false;
       return;
     }
     else {	
