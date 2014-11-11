@@ -137,6 +137,7 @@ void setup() {
   Serial.begin(9600);	 // Initialize serial communications with PC
   SPI.begin();           // MFRC522 Hardware uses SPI protocol
   mfrc522.PCD_Init();    // Initialize MFRC522 Hardware
+  mfrc522.PCD_SetAntennaGain(mfrc522.RxGain_max); //Set Antenna Gain to Max- this will increase reading distance
 
   //Wipe Code if Button Pressed while setup run (powered on) it wipes EEPROM
   pinMode(wipeB, INPUT_PULLUP);  // Enable pin's pull up resistor
