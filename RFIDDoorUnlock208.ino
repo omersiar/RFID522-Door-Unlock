@@ -193,7 +193,7 @@ void setup() {
     EEPROM.write(1,1); //Write to EEPROM we defined Master Card.
     Serial.println("Master Card Defined");
   }
-  Serial.println("##### RFID Door Unlocker #####");
+  Serial.println("##### RFID Door Acces Control v2.0.8 #####"); //For debug purposes
   Serial.println("Master Card's UID");
   for ( int i = 0; i < 4; i++ ) { // Read Master Card's UID from EEPROM
     masterCard[i] = EEPROM.read(2+i); //Write it to masterCard
@@ -220,19 +220,20 @@ void loop () {
     if ( isMaster(readCard) ) {  //If master card scanned again exit program mode
       Serial.println("This is Master Card"); 
       Serial.println("Exiting Program Mode");
+      Serial.println("-----------------------------");
       programMode = false;
       return;
     }
     else {	
       if ( findID(readCard) ) { //If scanned card is known delete it
         Serial.println("I know this PICC, so removing");
-        deleteID(readCard);   
-        Serial.println("Exiting Program Mode");
+        deleteID(readCard);
+        Serial.println("-----------------------------");
       }
       else {                    // If scanned card is not known add it
         Serial.println("I do not know this PICC, adding...");
-        writeID(readCard);  
-        Serial.println("Exiting Program Mode");
+        writeID(readCard);
+        Serial.println("-----------------------------");
       }
     }
   }
@@ -246,6 +247,7 @@ void loop () {
       Serial.print(" record(s) on EEPROM");
       Serial.println("");
       Serial.println("Scan a PICC to ADD or REMOVE");
+      Serial.println("-----------------------------");
     }
     else {
       if ( findID(readCard) ) {        // If not, see if the card is in the EEPROM 
@@ -270,8 +272,10 @@ int getID() {
     return 0;
   }
   // There are Mifare PICCs which have 4 byte or 7 byte UID care if you use 7 byte PICC
+  // I think we should assume every PICC as they have 4 byte UID
+  // Until we support 7 byte PICCs
   Serial.println("Scanned PICC's UID:");
-  for (int i = 0; i < mfrc522.uid.size; i++) {  // for size of uid.size write uid.uidByte to readCard
+  for (int i = 0; i < 4; i++) {  // 
     readCard[i] = mfrc522.uid.uidByte[i];
     Serial.print(readCard[i], HEX);
   }
