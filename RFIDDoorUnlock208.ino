@@ -195,12 +195,13 @@ void setup() {
   }
   Serial.println("##### RFID Door Acces Control v2.0.8 #####"); //For debug purposes
   Serial.println("Master Card's UID");
-  for ( int i = 0; i < 4; i++ ) { // Read Master Card's UID from EEPROM
-    masterCard[i] = EEPROM.read(2+i); //Write it to masterCard
+  for ( int i = 0; i < 4; i++ ) {     // Read Master Card's UID from EEPROM
+    masterCard[i] = EEPROM.read(2+i); // Write it to masterCard
     Serial.print(masterCard[i], HEX);
   }
   Serial.println("");
   Serial.println("Waiting PICCs to bo scanned :)");
+  cycleLeds();    // Everything ready lets give user some feedback by cycling leds
 }
 
 
@@ -209,7 +210,7 @@ void loop () {
   do {
     successRead = getID(); // sets successRead to 1 when we get read from reader otherwise 0
     if (programMode) {
-      programModeOn(); // Program Mode cycles through RGB waiting to read a new card
+      cycleLeds(); // Program Mode cycles through RGB waiting to read a new card
     }
     else {
       normalModeOn(); // Normal mode, blue Power LED is on, all others are off
@@ -284,8 +285,8 @@ int getID() {
   return 1;
 }
 
-///////////////////////////////////////// Program Mode Leds ///////////////////////////////////
-void programModeOn() {
+///////////////////////////////////////// Cycle Leds (Program Mode) ///////////////////////////////////
+void cycleLeds() {
   digitalWrite(redLed, LED_OFF); // Make sure red LED is off
   digitalWrite(greenLed, LED_ON); // Make sure green LED is on
   digitalWrite(blueLed, LED_OFF); // Make sure blue LED is off
@@ -300,7 +301,7 @@ void programModeOn() {
   delay(200);
 }
 
-//////////////////////////////////////// Normal Mode Leds  ///////////////////////////////////
+//////////////////////////////////////// Normal Mode Led  ///////////////////////////////////
 void normalModeOn () {
   digitalWrite(blueLed, LED_ON); // Blue LED ON and ready to read card
   digitalWrite(redLed, LED_OFF); // Make sure Red LED is off
