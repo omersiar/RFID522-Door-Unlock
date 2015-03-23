@@ -176,7 +176,8 @@ void setup() {
   //Check if master card defined, if not let user choose a master card
   //This also useful to just redefine Master Card
   //You can keep other EEPROM records just write other than 1 to EEPROM address 1
-  if (EEPROM.read(1) != 1) {  // Look EEPROM if Master Card defined, EEPROM address 1 holds if defined
+  if (EEPROM.read(1) != 143) {  // Look EEPROM if Master Card defined, EEPROM address 1 holds if defined
+  // 143 our magical number
     Serial.println("No Master Card Defined");
     Serial.println("Scan A PICC to Define as Master Card");
     do {
@@ -190,7 +191,7 @@ void setup() {
     for ( int j = 0; j < 4; j++ ) { // Loop 4 times
       EEPROM.write( 2 +j, readCard[j] ); // Write scanned PICC's UID to EEPROM, start from address 3
     }
-    EEPROM.write(1,1); //Write to EEPROM we defined Master Card.
+    EEPROM.write(1,143); //Write to EEPROM we defined Master Card.
     Serial.println("Master Card Defined");
   }
   Serial.println("##### RFID Door Acces Control v2.0.8 #####"); //For debug purposes
