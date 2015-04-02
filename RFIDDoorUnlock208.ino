@@ -143,12 +143,12 @@ void setup() {
   pinMode(wipeB, INPUT_PULLUP);  // Enable pin's pull up resistor
   if (digitalRead(wipeB) == LOW) {     // when button pressed pin should get low, button connected to ground
     digitalWrite(redLed, LED_ON);   // Red Led stays on to inform user we are going to wipe
-    Serial.println("!!! Wipe Button Pressed !!!");
+    Serial.println("Wipe Button Pressed");
     Serial.println("You have 5 seconds to Cancel");
     Serial.println("This will be remove all records and cannot be undone");
     delay(5000);    // Give user enough time to cancel operation
     if (digitalRead(wipeB) == LOW) {  // If button still be pressed, wipe EEPROM
-      Serial.println("!!! Starting Wiping EEPROM !!!");
+      Serial.println("Starting Wiping EEPROM");
       for (int x=0; x<1024; x=x+1){ //Loop end of EEPROM address
         if (EEPROM.read(x) == 0){ //If EEPROM address 0 
           // do nothing, already clear, go to the next address in order to save time and reduce writes to EEPROM
@@ -157,7 +157,7 @@ void setup() {
           EEPROM.write(x, 0); // if not write 0, it takes 3.3mS
         }
       }
-      Serial.println("!!! Wiped !!!");
+      Serial.println("Wiped");
       digitalWrite(redLed, LED_OFF); // visualize successful wipe
       delay(200);
       digitalWrite(redLed, LED_ON);
