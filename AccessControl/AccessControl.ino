@@ -39,8 +39,10 @@
 */
 
 #include <SPI.h>        // RC522 Module uses SPI protocol
+#include <Ethernet.h>   // Ethernet Library Wiznet
 #include <MFRC522.h>	// Library for Mifare RC522 Devices
 #include <SD.h>         // We are going to read and write PICC's UIDs from/to SD
+
 
 /*
 	Instead of a Relay maybe you want to use a servo
@@ -74,9 +76,9 @@
 #define greenLed 6
 #define blueLed 5
 
-#define relay 4			// Set Relay Pin
+#define relay 3			// Set Relay Pin
 
-#define sdPin 8			// Set Relay Pin
+#define sdPin 4			// Set SD Pin
 
 boolean match = false;          // initialize card match to false
 boolean programMode = false;	// initialize programming mode to false
@@ -88,6 +90,7 @@ byte masterCard[4];		// Stores master card's ID
 
 char filename[] = "XXXXXXXX.DAT";  // Stores variable filename
 char extension[] = "DAT";          // sometimes the extension gets modified
+
 
 /*
 	We need to define MFRC522's pins and create instance
@@ -101,8 +104,20 @@ char extension[] = "DAT";          // sometimes the extension gets modified
  */
 
 #define SS_PIN 9
-#define RST_PIN 7
+#define RST_PIN 8
 MFRC522 mfrc522(SS_PIN, RST_PIN);	// Create MFRC522 instance.
+
+/************ ETHERNET STUFF ************/
+// Initialize the Ethernet server library
+// with the IP address and port you want to use
+// (port 80 is default for HTTP):
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+IPAddress ip(192, 168, 1, 245);
+EthernetServer server(80);
+
+
+
+
 
 ///////////////////////////////////////// Setup ///////////////////////////////////
 void setup() {
@@ -118,21 +133,23 @@ void setup() {
 
   //Initialize
   Serial.begin(9600);	 // Initialize serial communications with PC
+  Serial.println(F("Access Control v4.1B"));   // For debugging purposes
   SPI.begin();           // MFRC522 Hardware uses SPI protocol
-  mfrc522.PCD_Init();    // Initialize MFRC522 Hardware
-  Serial.println(F("Access Control v2.2"));   // For debugging purposes
-  ShowReaderDetails();	// Show details of PCD - MFRC522 Card Reader details
-
-  //If you set Antenna Gain to Max it will increase reading distance
-  //mfrc522.PCD_SetAntennaGain(mfrc522.RxGain_max);
-
-  if (!SD.begin(sdPin)) {	                             // Initialize SD Hardware
+  Ethernet.begin(mac, ip);
+  server.begin();        
+  Serial.print("server is at ");
+  Serial.println(Ethernet.localIP());
+  if (!SD.begin(sdPin)) {	                     // Initialize SD Hardware
     Serial.println(F("SD initialization failed!"));  // Could not initialize
     while (true);                                    // Do not go further
   }
-  Serial.println(F("SD initialization done."));      // Yay both SPI slaves work
+  Serial.println(F("SD initialization done."));      // Yay all SPI slaves work
+  mfrc522.PCD_Init();    // Initialize MFRC522 Hardware
+  ShowReaderDetails();	 // Show details of PCD - MFRC522 Card Reader details
+
+  //If you set Antenna Gain to Max it will increase reading distance
+  //mfrc522.PCD_SetAntennaGain(mfrc522.RxGain_max);
   
-  //  checkSystemFiles(); // Check system files on SD card
   checkMaster();      // Check if masterCard defined
   Serial.println(F("Everything Ready"));
   Serial.println(F("Waiting PICCs to be scanned"));
@@ -144,6 +161,7 @@ void setup() {
 ///////////////////////////////////////// Main Loop ///////////////////////////////////
 void loop () {
   do {
+    checkClient();
     successRead = getID(); 	// sets successRead to 1 when we get read from reader otherwise 0
     if (programMode) {
       cycleLeds();              // Program Mode cycles through RGB waiting to read a new card
@@ -194,8 +212,50 @@ void loop () {
   }
 }
 
+void checkClient() {
+  EthernetClient client = server.available();  // try to get client
+  if (client) {  // got client?
+    boolean currentLineIsBlank = true;
+    while (client.connected()) {
+      if (client.available()) {   // client data available to read
+        char c = client.read(); // read 1 byte (character) from client
+        // last line of client request is blank and ends with \n
+        // respond to client only after last line received
+        if (c == '\n' && currentLineIsBlank) {
+          // send a standard http response header
+          client.println("HTTP/1.1 200 OK");
+          client.println("Content-Type: text/html");
+          client.println("Connection: close");
+          client.println();
+          // send web page
+          File webFile = SD.open("/HTML/index.htm");        // open web page file
+          if (webFile) {
+            while (webFile.available()) {
+              client.write(webFile.read()); // send web page to client
+            }
+            webFile.close();
+          }
+          break;
+        }
+        // every line of text received from the client ends with \r\n
+        if (c == '\n') {
+          // last character on line of received text
+          // starting new line with next character read
+          currentLineIsBlank = true;
+        }
+        else if (c != '\r') {
+          // a text character was received from client
+          currentLineIsBlank = false;
+        }
+      } // end if (client.available())
+    } // end while (client.connected())
+    delay(1);      // give the web browser time to receive the data
+    client.stop(); // close the connection
+  } // end if (client)
+}
+
 void getFilename() {  // We will store UIDs as files on SD card
-  sprintf(filename, "%02x%02x%02x%02x.%s", readCard[0], readCard[1], // Convert readCard data to char append extension
+  sprintf(filename, "%02x%02x%02x%02x.%s", readCard[0], readCard[1], // Convert readCard data to char and append extension
           readCard[2], readCard[3], extension);
 }
 
@@ -203,7 +263,7 @@ boolean findID () {  // Check If we can find UID's specific file
   File fileopen = SD.open(filename);
   if (fileopen) {
     fileopen.close();  // Found it close
-    return true;       
+    return true;
   }
   else {  	// If not, return false
   }
@@ -268,22 +328,9 @@ int getID() {
   }
   Serial.println("");
   mfrc522.PICC_HaltA(); // Stop reading
-  getFilename();    // Get data ready 
+  getFilename();    // Get data ready
   return 1;
 }
-
-//void checkSystemFiles() {
-//  Serial.println(F("Checking files..."));
-//  if (SD.exists("piccs.txt")) {
-//    Serial.println(F("Database Found."));
-//  }
-//  else {
-//    Serial.println("Database could not found. Creating...");
-//    File data = SD.open("piccs.txt", FILE_WRITE);
-//   data.close();
-//    Serial.println(F("Database created succesfully."));
-//  }
-//}
 
 void checkMaster() {
   if (SD.exists("master.dat")) {              // Check if we have master.dat on SD card
@@ -342,7 +389,7 @@ void ShowReaderDetails() {
 boolean checkTwo ( byte a[], byte b[] ) {
   if ( a[0] != NULL ) 			// Make sure there is something in the array first
     match = true; 			// Assume they match at first
-  for ( int k = 0; k < 4; k++ ) { 	// Loop 4 times for 4 bytes it rhymes
+  for ( int k = 0; k < 4; k++ ) { 	// Loop 4 times
     if ( a[k] != b[k] ) 		// IF a != b then set match = false, one fails, all fail
       match = false;
   }
@@ -362,3 +409,4 @@ boolean isMaster( byte test[] ) {
   else
     return false;
 }
+
