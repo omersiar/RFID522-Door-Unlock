@@ -1,5 +1,9 @@
 /*
-    Arduino RFID Acces Control
+    This program will delete a Known UID from EEPROM
+	Since EEPROM records remains between flashing Arduino
+	this can be used to delete lost PICC's UID, and
+	reflash main program to continue working.
+	
     Copyright (C) 2015 Omer Siar Baysal
 
     This program is free software; you can redistribute it and/or modify
@@ -17,12 +21,6 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-/* This program will delete a Known UID from EEPROM
- * Since EEPROM records remains between flashing Arduino
- * this can be used to delete lost PICC's UID, and
- * reflash main program to continue working.
- */
- 
 byte deleteCard[4] ={0x12,0x34,0x56,0x78};  // Enter your lost card's UID Here
 
 #include <EEPROM.h>  // We are going to read and write PICC's UIDs from/to EEPROM
@@ -69,10 +67,11 @@ void setup() {
   Serial.println("");
   
   deleteID(deleteCard); //Try to delete
-  /* This will find the given UID (deleteCard) from EEPROM
-   * and delete it and Shift remaining records to 4 byte earlier.
-   * Blue Led will flash on success, Red Led will flash on fail.
-   */
+  /* 
+  This will find the given UID (deleteCard) from EEPROM
+  and delete it and Shift remaining records to 4 byte earlier.
+  Blue Led will flash on success, Red Led will flash on fail.
+  */
 }
 
 void loop() {
