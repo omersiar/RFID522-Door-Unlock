@@ -4,19 +4,8 @@
   Security !
 
   To keep it simple we are going to use Tag's Unique IDs
-  as only method of Authenticity. It's simple, but not hacker proof.
+  as only method of Authenticity. It's simple and not hacker proof.
   If you need security, don't use it unless you modify the code
-
-  Credits
-  Idea and base code from Brett Martin's project
-  http://www.instructables.com/id/Arduino-RFID-Door-Lock/
-
-  MFRC522 Library
-  https://github.com/miguelbalboa/rfid
-  Created by Miguel Balboa (circuitito.com), Jan, 2012.
-
-  Arduino Forum Member luisilva for His Massive Code Correction
-  http://forum.arduino.cc/index.php?topic=257036.0
 
   Copyright (C) 2015 Omer Siar Baysal
 

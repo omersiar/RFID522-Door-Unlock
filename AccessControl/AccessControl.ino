@@ -4,21 +4,8 @@
   Security !
 
   To keep it simple we are going to use Tag's Unique IDs
-  as only method of Authenticity. It's simple, but not hacker proof.
+  as only method of Authenticity. It's simple and not hacker proof.
   If you need security, don't use it unless you modify the code
-
-  Credits
-  Idea and base code from Brett Martin's project
-  http://www.instructables.com/id/Arduino-RFID-Door-Lock/
-  www.pcmofo.com
-
-  MFRC522 Library
-  https://github.com/miguelbalboa/rfid
-  Created by Miguel Balboa (circuitito.com), Jan, 2012.
-
-  Arduino Forum Member luisilva for His Massive Code Correction
-  http://forum.arduino.cc/index.php?topic=257036.0
-  http://forum.arduino.cc/index.php?action=profile;u=198897
 
   Copyright (C) 2015 Omer Siar Baysal
 
@@ -88,8 +75,9 @@ int successRead;		// Variable integer to keep if we have Successful Read from Re
 byte readCard[4];		// Stores scanned ID read from RFID Module
 byte masterCard[4];		// Stores master card's ID
 
-char filename[] = "XXXXXXXX.DAT";  // Stores variable filename
+char filename[] = "XXXXXXXXXXXXXXX.DAT";  // Stores variable filename
 char extension[] = "DAT";          // sometimes the extension gets modified
+char dir[] = "/PICCS/";
 
 
 /*
@@ -116,9 +104,6 @@ IPAddress ip(192, 168, 1, 245);
 EthernetServer server(80);
 
 
-
-
-
 ///////////////////////////////////////// Setup ///////////////////////////////////
 void setup() {
   //Arduino Pin Configuration
@@ -133,10 +118,10 @@ void setup() {
 
   //Initialize
   Serial.begin(9600);	 // Initialize serial communications with PC
-  Serial.println(F("Access Control v4.1B"));   // For debugging purposes
+  Serial.println(F("Access Control v4.3"));   // For debugging purposes
   SPI.begin();           // MFRC522 Hardware uses SPI protocol
   Ethernet.begin(mac, ip);
-  server.begin();        
+  server.begin();
   Serial.print("server is at ");
   Serial.println(Ethernet.localIP());
   if (!SD.begin(sdPin)) {	                     // Initialize SD Hardware
@@ -149,7 +134,7 @@ void setup() {
 
   //If you set Antenna Gain to Max it will increase reading distance
   //mfrc522.PCD_SetAntennaGain(mfrc522.RxGain_max);
-  
+
   checkMaster();      // Check if masterCard defined
   Serial.println(F("Everything Ready"));
   Serial.println(F("Waiting PICCs to be scanned"));
@@ -213,6 +198,7 @@ void loop () {
 }
 
 void checkClient() {
+
   EthernetClient client = server.available();  // try to get client
   if (client) {  // got client?
     boolean currentLineIsBlank = true;
@@ -227,14 +213,30 @@ void checkClient() {
           client.println("Content-Type: text/html");
           client.println("Connection: close");
           client.println();
-          // send web page
-          File webFile = SD.open("/HTML/index.htm");        // open web page file
-          if (webFile) {
-            while (webFile.available()) {
-              client.write(webFile.read()); // send web page to client
+          client.print("<html><head><title>Arduino RFID Access Control</title></head><body><h1>Welcome RFID Access Control 4</h1><p>Here is the list of Authorized Users</p><br /><table border=1><tr><td><b>User Name</b></td><td><b>UID File</b></td><td><b>Remove</b></td></tr>");
+          
+          File dir = SD.open("/PICCS");
+          while (true) {
+            File entry =  dir.openNextFile();
+            if (! entry) {
+             // no more files
+             break;
             }
-            webFile.close();
+            client.print("<tr><td>");
+            while (entry.available()) {
+              client.write(entry.read());
+            }
+            entry.close();
+            client.print("</td><td>");
+            client.print(entry.name());
+            client.print("</td><td>");
+            client.println("<form method=\"get\">");
+            client.println("</form>");
+            client.print("</td></tr>");
+
           }
+
+          client.print("</table></body></html>");
           break;
         }
         // every line of text received from the client ends with \r\n
@@ -254,8 +256,11 @@ void checkClient() {
   } // end if (client)
 }
 
+
+
+
 void getFilename() {  // We will store UIDs as files on SD card
-  sprintf(filename, "%02x%02x%02x%02x.%s", readCard[0], readCard[1], // Convert readCard data to char and append extension
+  sprintf(filename, "%s%02x%02x%02x%02x.%s", dir, readCard[0], readCard[1], // Convert readCard data to char and append extension
           readCard[2], readCard[3], extension);
 }
 
@@ -333,9 +338,9 @@ int getID() {
 }
 
 void checkMaster() {
-  if (SD.exists("master.dat")) {              // Check if we have master.dat on SD card
+  if (SD.exists("/SYS/master.dat")) {              // Check if we have master.dat on SD card
     Serial.print(F("Master Card's UID: "));      // Since we have it print to serial
-    File masterfile = SD.open("master.dat");  // Open file
+    File masterfile = SD.open("/SYS/master.dat");  // Open file
     for (int i = 0; i < 4; i++) {             // Loop 4 times to get 4 bytes
       readCard[i] = masterfile.read();
       Serial.print(readCard[i], HEX);         // Actual serial printing of each byte
@@ -352,7 +357,7 @@ void checkMaster() {
       blueBlink(); // Visualize Master Card need to be defined
     }
     while (!successRead); //the program will not go further while you not get a successful read
-    File masterfile = SD.open("master.dat", FILE_WRITE);
+    File masterfile = SD.open("/SYS/master.dat", FILE_WRITE);
     if (masterfile) {
       Serial.println(F("Writing to master.dat..."));
       masterfile.write(readCard, 4);
@@ -365,6 +370,9 @@ void checkMaster() {
     }
   }
 }
+
+
+
 
 void ShowReaderDetails() {
   // Get the MFRC522 software version
