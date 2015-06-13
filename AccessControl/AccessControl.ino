@@ -126,6 +126,7 @@ void setup() {
   Serial.println(Ethernet.localIP());
   if (!SD.begin(sdPin)) {	                     // Initialize SD Hardware
     Serial.println(F("SD initialization failed!"));  // Could not initialize
+    redSolid();
     while (true);                                    // Do not go further
   }
   Serial.println(F("SD initialization done."));      // Yay all SPI slaves work
@@ -366,7 +367,8 @@ void checkMaster() {
       Serial.println(F("Master Card successfuly defined"));
     } else {
       // if the file didn't open, print an error:
-      Serial.println(F("error opening master.dat"));
+      Serial.println(F("error creating master.dat"));
+      redBlink();
     }
   }
 }
@@ -389,6 +391,7 @@ void ShowReaderDetails() {
   // When 0x00 or 0xFF is returned, communication probably failed
   if ((v == 0x00) || (v == 0xFF)) {
     Serial.println(F("WARNING: Communication failure, is the MFRC522 properly connected?"));
+    redSolid();
     while (true); // do not go further
   }
 }

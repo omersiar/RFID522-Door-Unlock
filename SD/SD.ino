@@ -29,6 +29,7 @@
 #include <MFRC522.h>	// Library for Mifare RC522 Devices
 #include <SD.h>         // We are going to read and write PICC's UIDs from/to SD
 
+
 /*
 	Instead of a Relay maybe you want to use a servo
 	Servos can lock and unlock door locks too
@@ -61,9 +62,8 @@
 #define greenLed 6
 #define blueLed 5
 
-#define relay 4			// Set Relay Pin
-
-#define sdPin 8			// Set Relay Pin
+#define relay 3			// Set Relay Pin
+#define sdPin 4			// Set SD Pin
 
 boolean match = false;          // initialize card match to false
 boolean programMode = false;	// initialize programming mode to false
@@ -73,8 +73,11 @@ int successRead;		// Variable integer to keep if we have Successful Read from Re
 byte readCard[4];		// Stores scanned ID read from RFID Module
 byte masterCard[4];		// Stores master card's ID
 
-char filename[] = "XXXXXXXX.DAT";  // Stores variable filename
+char username[8] = {'\0'};
+char filename[] = "XXXXXXXXXXXXXXX.DAT";  // Stores variable filename
 char extension[] = "DAT";          // sometimes the extension gets modified
+char dir[] = "/PICCS/";
+
 
 /*
 	We need to define MFRC522's pins and create instance
@@ -88,8 +91,9 @@ char extension[] = "DAT";          // sometimes the extension gets modified
  */
 
 #define SS_PIN 9
-#define RST_PIN 7
+#define RST_PIN 8
 MFRC522 mfrc522(SS_PIN, RST_PIN);	// Create MFRC522 instance.
+
 
 ///////////////////////////////////////// Setup ///////////////////////////////////
 void setup() {
@@ -105,21 +109,20 @@ void setup() {
 
   //Initialize
   Serial.begin(9600);	 // Initialize serial communications with PC
+  Serial.println(F("Access Control v4.5sd"));   // For debugging purposes
   SPI.begin();           // MFRC522 Hardware uses SPI protocol
+  if (!SD.begin(sdPin)) {	                     // Initialize SD Hardware
+    Serial.println(F("SD initialization failed!"));  // Could not initialize
+    redSolid();
+    while (true);                                    // Do not go further
+  }
+  Serial.println(F("SD initialization done."));      // Yay all SPI slaves work
   mfrc522.PCD_Init();    // Initialize MFRC522 Hardware
-  Serial.println(F("Access Control v2.2"));   // For debugging purposes
-  ShowReaderDetails();	// Show details of PCD - MFRC522 Card Reader details
+  ShowReaderDetails();	 // Show details of PCD - MFRC522 Card Reader details
 
   //If you set Antenna Gain to Max it will increase reading distance
   //mfrc522.PCD_SetAntennaGain(mfrc522.RxGain_max);
 
-  if (!SD.begin(sdPin)) {	                             // Initialize SD Hardware
-    Serial.println(F("SD initialization failed!"));  // Could not initialize
-    while (true);                                    // Do not go further
-  }
-  Serial.println(F("SD initialization done."));      // Yay both SPI slaves work
-  
-  //  checkSystemFiles(); // Check system files on SD card
   checkMaster();      // Check if masterCard defined
   Serial.println(F("Everything Ready"));
   Serial.println(F("Waiting PICCs to be scanned"));
@@ -141,48 +144,105 @@ void loop () {
   }
   while (!successRead); 	// the program will not go further while you not get a successful read
   if (programMode) {
-    if (isMaster(readCard)) {   // If master card scanned again exit program mode
-      Serial.println(F("Master Card Scanned"));
-      Serial.println(F("Exiting Program Mode"));
-      Serial.println(F("-----------------------------"));
-      programMode = false;
-      return;
-    }
-    else {
-      if ( findID() ) { // If scanned card is known delete it
-        Serial.println(F("I know this PICC, removing..."));
-        removeID();
-        Serial.println(F("-----------------------------"));
-      }
-      else {            // If scanned card is not known add it
-        Serial.println(F("I do not know this PICC, adding..."));
-        writeID();
-        Serial.println(F("-----------------------------"));
-      }
-    }
+    // Print the control menu:
+    printMenu();
+    // Then wait for any serial data to come in:
+    while (!Serial.available());
+    // Once serial data is received, call parseMenu to act on it:
+    parseMenu(Serial.read());
+  }
+  if (isMaster(readCard)) {  	// If scanned card's ID matches Master Card's ID enter program mode
+    Serial.println(F("Hello Master - Entered Program Mode"));
+    programMode = true;
   }
   else {
-    if (isMaster(readCard)) {  	// If scanned card's ID matches Master Card's ID enter program mode
-      programMode = true;
-      Serial.println(F("Hello Master - Entered Program Mode"));
-      Serial.println(F("Scan a PICC to ADD or REMOVE"));
-      Serial.println(F("-----------------------------"));
+    if (findID()) {	// If not, check if we can find it
+      Serial.println(F("Welcome, You shall pass"));
+      granted(300);        	// Open the door lock for 300 ms
     }
-    else {
-      if (findID()) {	// If not, check if we can find it
-        Serial.println(F("Welcome, You shall pass"));
-        granted(300);        	// Open the door lock for 300 ms
-      }
-      else {			// If not, show that the ID was not valid
-        Serial.println(F("You shall not pass"));
-        denied();
-      }
+    else {			// If not, show that the ID was not valid
+      Serial.println(F("You shall not pass"));
+      denied();
     }
   }
 }
 
+
+
+
+void printMenu() {
+  Serial.println();
+  Serial.println(F("////////////////////////////////////////////"));
+  Serial.println(F("// Programming Menu                       //"));
+  Serial.println(F("////////////////////////////////////////////"));
+  Serial.println();
+  Serial.println(F("1) Add a PICC"));
+  Serial.println(F("2) Remove a PICC"));
+  Serial.println(F("3) Change Username"));
+  Serial.println(F("4) Set Date and Time /not implemented"));
+  Serial.println(F("5) Exit Programming Mode"));
+  Serial.println();
+  Serial.println(F("6) Change Master Tag"));
+  Serial.println(F("X) Delete All Tags /not implemented"));
+  Serial.println();
+}
+
+void parseMenu(char c) {
+  switch (c)  {
+    case '1':
+      Serial.println(F("Scan a PICC and Enter User Name"));
+      while (!Serial.available()) {
+        getID();
+      }
+      if (findID()) {	// If not, check if we can find it
+        Serial.println(F("This PICC Already Exists"));
+        Serial.print(F("User Name: "));
+        Serial.println(F("This PICC Already Exists"));
+        File dataFile = SD.open(filename);
+        if (dataFile) {
+          while (dataFile.available()) {
+            Serial.write(dataFile.read());
+          }
+          dataFile.close();
+        }
+        Serial.println(F("You can change username"));
+        return;
+      }
+      for (byte i = 0; i < 7; i++) {
+        username[i] = Serial.read();
+      }
+      writeID(username);
+      break;
+    case '2':
+      while (!Serial.available())
+
+        break;
+    case '3':
+      while (!Serial.available())
+
+        break;
+    case '4':
+      while (!Serial.available()) {
+
+      }
+      break;
+    case '5':
+      programMode = false;
+      Serial.println(F("Quit Programming Mode"));
+      break;
+    case '6':
+      SD.remove("/SYS/master.dat");
+      checkMaster();
+      programMode = false;
+      Serial.println(F("Quit Programming Mode"));
+      checkMaster();
+      break;
+
+  }
+}
+
 void getFilename() {  // We will store UIDs as files on SD card
-  sprintf(filename, "%02x%02x%02x%02x.%s", readCard[0], readCard[1], // Convert readCard data to char append extension
+  sprintf(filename, "%s%02x%02x%02x%02x.%s", dir, readCard[0], readCard[1], // Convert readCard data to char and append extension
           readCard[2], readCard[3], extension);
 }
 
@@ -190,15 +250,16 @@ boolean findID () {  // Check If we can find UID's specific file
   File fileopen = SD.open(filename);
   if (fileopen) {
     fileopen.close();  // Found it close
-    return true;       
+    return true;
   }
   else {  	// If not, return false
   }
   return false;
 }
 
-void writeID () {
+void writeID (char* user) {
   File filewrite = SD.open(filename, FILE_WRITE);
+  filewrite.print(user);
   filewrite.close();
   if (SD.exists(filename)) {
     Serial.println(F("Succesfully added ID record"));
@@ -248,34 +309,21 @@ int getID() {
   // There are Mifare PICCs which have 4 byte or 7 byte UID care if you use 7 byte PICC
   // I think we should assume every PICC as they have 4 byte UID
   // Until we support 7 byte PICCs
-  Serial.println(F("Scanned PICC's UID:"));
+  Serial.print(F("Scanned PICC's UID: "));
   for (int i = 0; i < 4; i++) {  //
     readCard[i] = mfrc522.uid.uidByte[i];
     Serial.print(readCard[i], HEX);
   }
   Serial.println("");
   mfrc522.PICC_HaltA(); // Stop reading
-  getFilename();    // Get data ready 
+  getFilename();    // Get data ready
   return 1;
 }
 
-//void checkSystemFiles() {
-//  Serial.println(F("Checking files..."));
-//  if (SD.exists("piccs.txt")) {
-//    Serial.println(F("Database Found."));
-//  }
-//  else {
-//    Serial.println("Database could not found. Creating...");
-//    File data = SD.open("piccs.txt", FILE_WRITE);
-//   data.close();
-//    Serial.println(F("Database created succesfully."));
-//  }
-//}
-
 void checkMaster() {
-  if (SD.exists("master.dat")) {              // Check if we have master.dat on SD card
+  if (SD.exists("/SYS/master.dat")) {              // Check if we have master.dat on SD card
     Serial.print(F("Master Card's UID: "));      // Since we have it print to serial
-    File masterfile = SD.open("master.dat");  // Open file
+    File masterfile = SD.open("/SYS/master.dat");  // Open file
     for (int i = 0; i < 4; i++) {             // Loop 4 times to get 4 bytes
       readCard[i] = masterfile.read();
       Serial.print(readCard[i], HEX);         // Actual serial printing of each byte
@@ -292,16 +340,23 @@ void checkMaster() {
       blueBlink(); // Visualize Master Card need to be defined
     }
     while (!successRead); //the program will not go further while you not get a successful read
-    File masterfile = SD.open("master.dat", FILE_WRITE);
+    File masterfile = SD.open("/SYS/master.dat", FILE_WRITE);
     if (masterfile) {
       Serial.println(F("Writing to master.dat..."));
       masterfile.write(readCard, 4);
+      for (int i = 0; i < 4; i++) {             // Loop 4 times to get 4 bytes
+        readCard[i] = masterfile.read();
+
+        masterCard[i] = readCard[i];            // Prepare bytes for future comparing
+      }
       // close the file:
       masterfile.close();
+      greenBlink();
       Serial.println(F("Master Card successfuly defined"));
     } else {
       // if the file didn't open, print an error:
-      Serial.println(F("error opening master.dat"));
+      Serial.println(F("error creating master.dat"));
+      redBlink();
     }
   }
 }
@@ -321,6 +376,7 @@ void ShowReaderDetails() {
   // When 0x00 or 0xFF is returned, communication probably failed
   if ((v == 0x00) || (v == 0xFF)) {
     Serial.println(F("WARNING: Communication failure, is the MFRC522 properly connected?"));
+    redSolid();
     while (true); // do not go further
   }
 }
@@ -329,7 +385,7 @@ void ShowReaderDetails() {
 boolean checkTwo ( byte a[], byte b[] ) {
   if ( a[0] != NULL ) 			// Make sure there is something in the array first
     match = true; 			// Assume they match at first
-  for ( int k = 0; k < 4; k++ ) { 	// Loop 4 times for 4 bytes it rhymes
+  for ( int k = 0; k < 4; k++ ) { 	// Loop 4 times
     if ( a[k] != b[k] ) 		// IF a != b then set match = false, one fails, all fail
       match = false;
   }
@@ -349,3 +405,4 @@ boolean isMaster( byte test[] ) {
   else
     return false;
 }
+
