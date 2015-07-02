@@ -111,7 +111,7 @@ void setup() {
   //If you set Antenna Gain to Max it will increase reading distance
   //mfrc522.PCD_SetAntennaGain(mfrc522.RxGain_max);
   
-  Serial.println(F("Access Control v3.2"));   // For debugging purposes
+  Serial.println(F("Access Control v3.3"));   // For debugging purposes
   ShowReaderDetails();	// Show details of PCD - MFRC522 Card Reader details
 
   //Wipe Code if Button Pressed while setup run (powered on) it wipes EEPROM
@@ -123,7 +123,7 @@ void setup() {
     delay(5000);                        // Give user enough time to cancel operation
     if (digitalRead(wipeB) == LOW) {    // If button still be pressed, wipe EEPROM
       Serial.println(F("Starting Wiping EEPROM"));
-      for (int x = 0; x < 1024; x = x + 1) {    //Loop end of EEPROM address
+      for (int x = 0; x < EEPROM.length(); x = x + 1) {    //Loop end of EEPROM address
         if (EEPROM.read(x) == 0) {              //If EEPROM address 0
           // do nothing, already clear, go to the next address in order to save time and reduce writes to EEPROM
         }
