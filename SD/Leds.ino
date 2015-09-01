@@ -1,41 +1,40 @@
-#define BLINK_DELAY 200 // Delay for flashing leds (ms)
 ///////////////////////////////////////// Write Success to EEPROM   ///////////////////////////////////
-// Flashes the green LED 3 times to indicate a successful write to EEPROM
-void greenBlink() {
-  digitalWrite(blueLed, LED_OFF);   // Make sure blue LED is off
-  digitalWrite(redLed, LED_OFF);  // Make sure red LED is off
-  digitalWrite(greenLed, LED_OFF);  // Make sure green LED is off
+// Flashes the green LED n-times to indicate a successful write to EEPROM
+void greenBlink(uint8_t n) {
+  digitalWrite(LED_BLUE, LED_OFF);   // Make sure blue LED is off
+  digitalWrite(LED_RED, LED_OFF);  // Make sure red LED is off
+  digitalWrite(LED_GREEN, LED_OFF);  // Make sure green LED is off
   bool state = true;
-  for (int i = 0; i < 6; i++) {
-    digitalWrite(blueLed, state);   // Toggle green LED
+  for (int i = 0; i < (n*2); i++) {
+    digitalWrite(LED_BLUE, state);   // Toggle green LED
     state = !state;
     delay(BLINK_DELAY);
   }
 }
 
 ///////////////////////////////////////// Write Failed to EEPROM   ///////////////////////////////////
-// Flashes the red LED 3 times to indicate a failed write to EEPROM
-void redBlink() {
-  digitalWrite(blueLed, LED_OFF);   // Make sure blue LED is off
-  digitalWrite(redLed, LED_OFF);  // Make sure red LED is off
-  digitalWrite(greenLed, LED_OFF);  // Make sure green LED is off
+// Flashes the red LED n-times to indicate a failed write to EEPROM
+void redBlink(uint8_t n) {
+  digitalWrite(LED_BLUE, LED_OFF);   // Make sure blue LED is off
+  digitalWrite(LED_RED, LED_OFF);  // Make sure red LED is off
+  digitalWrite(LED_GREEN, LED_OFF);  // Make sure green LED is off
   bool state = true;
-  for (int i = 0; i < 6; i++) {
-    digitalWrite(redLed, state);   // Toggle red LED
+  for (int i = 0; i < (n*2); i++) {
+    digitalWrite(LED_RED, state);   // Toggle red LED
     state = !state;
     delay(BLINK_DELAY);
   }
 }
 
 ///////////////////////////////////////// Success Remove UID From EEPROM  ///////////////////////////////////
-// Flashes the blue LED 3 times to indicate a success delete to EEPROM
-void blueBlink() {
-  digitalWrite(blueLed, LED_OFF);   // Make sure blue LED is off
-  digitalWrite(redLed, LED_OFF);  // Make sure red LED is off
-  digitalWrite(greenLed, LED_OFF);  // Make sure green LED is off
+// Flashes the blue LED n-times to indicate a success delete to EEPROM
+void blueBlink(uint8_t n) {
+  digitalWrite(LED_BLUE, LED_OFF);   // Make sure blue LED is off
+  digitalWrite(LED_RED, LED_OFF);  // Make sure red LED is off
+  digitalWrite(LED_GREEN, LED_OFF);  // Make sure green LED is off
   bool state = true;
-  for (int i = 0; i < 6; i++) {
-    digitalWrite(blueLed, state);   // Toggle blue LED
+  for (int i = 0; i < (n*2); i++) {
+    digitalWrite(LED_BLUE, state);   // Toggle blue LED
     state = !state;
     delay(BLINK_DELAY);
   }
@@ -44,38 +43,39 @@ void blueBlink() {
 
 ///////////////////////////////////////// Cycle Leds (Program Mode) ///////////////////////////////////
 void cycleLeds() {
-  digitalWrite(redLed, LED_OFF); 	// Make sure red LED is off
-  digitalWrite(greenLed, LED_ON); 	// Make sure green LED is on
-  digitalWrite(blueLed, LED_OFF); 	// Make sure blue LED is off
-  delay(200);
-  digitalWrite(redLed, LED_OFF); 	// Make sure red LED is off
-  digitalWrite(greenLed, LED_OFF); 	// Make sure green LED is off
-  digitalWrite(blueLed, LED_ON); 	// Make sure blue LED is on
-  delay(200);
-  digitalWrite(redLed, LED_ON); 	// Make sure red LED is on
-  digitalWrite(greenLed, LED_OFF); 	// Make sure green LED is off
-  digitalWrite(blueLed, LED_OFF); 	// Make sure blue LED is off
-  delay(200);
+  digitalWrite(LED_RED, LED_OFF); 	// Make sure red LED is off
+  digitalWrite(LED_GREEN, LED_ON); 	// Make sure green LED is on
+  digitalWrite(LED_BLUE, LED_OFF); 	// Make sure blue LED is off
+  delay(CYCLE_DELAY);
+  digitalWrite(LED_RED, LED_OFF); 	// Make sure red LED is off
+  digitalWrite(LED_GREEN, LED_OFF); 	// Make sure green LED is off
+  digitalWrite(LED_BLUE, LED_ON); 	// Make sure blue LED is on
+  delay(CYCLE_DELAY);
+  digitalWrite(LED_RED, LED_ON); 	// Make sure red LED is on
+  digitalWrite(LED_GREEN, LED_OFF); 	// Make sure green LED is off
+  digitalWrite(LED_BLUE, LED_OFF); 	// Make sure blue LED is off
+  delay(CYCLE_DELAY);               
 }
 
 //////////////////////////////////////// Normal Mode Led  ///////////////////////////////////
 void blueSolid () {
-  digitalWrite(blueLed, LED_ON); 	// Blue LED ON and ready to read card
-  digitalWrite(redLed, LED_OFF); 	// Make sure Red LED is off
-  digitalWrite(greenLed, LED_OFF); 	// Make sure Green LED is off
+  digitalWrite(LED_BLUE, LED_ON); 	  // Blue LED ON and ready to read card
+  digitalWrite(LED_RED, LED_OFF); 	  // Make sure Red LED is off
+  digitalWrite(LED_GREEN, LED_OFF); 	// Make sure Green LED is off
+  delay(SOLID_DELAY);               // Hold blue LED on
 }
 
 void greenSolid () {
-  digitalWrite(blueLed, LED_OFF); 	// Turn off blue LED
-  digitalWrite(redLed, LED_OFF); 	// Turn off red LED
-  digitalWrite(greenLed, LED_ON); 	// Turn on green LED
-  delay(1000); 				// Hold green LED on for a second
+  digitalWrite(LED_BLUE, LED_OFF); 	// Turn off blue LED
+  digitalWrite(LED_RED, LED_OFF); 	  // Turn off red LED
+  digitalWrite(LED_GREEN, LED_ON); 	// Turn on green LED
+  delay(SOLID_DELAY); 				      // Hold green LED on
 }
 
 ///////////////////////////////////////// Access Denied  ///////////////////////////////////
 void redSolid() {
-  digitalWrite(greenLed, LED_OFF); 	// Make sure green LED is off
-  digitalWrite(blueLed, LED_OFF); 	// Make sure blue LED is off
-  digitalWrite(redLed, LED_ON); 	// Turn on red LED
-  delay(1000);
+  digitalWrite(LED_GREEN, LED_OFF); 	// Make sure green LED is off
+  digitalWrite(LED_BLUE, LED_OFF); 	// Make sure blue LED is off
+  digitalWrite(LED_RED, LED_ON); 	  // Turn on red LED
+  delay(SOLID_DELAY);               // Hold red LED on
 }
