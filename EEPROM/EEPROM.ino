@@ -33,7 +33,7 @@
 	Instead of a Relay maybe you want to use a servo
 	Servos can lock and unlock door locks too
 	There are examples out there.
- */
+*/
 
 // #include <Servo.h>
 
@@ -45,7 +45,7 @@
 	Used common anode led,digitalWriting HIGH turns OFF led
 	Mind that if you are going to use common cathode led or
 	just seperate leds, simply comment out #define COMMON_ANODE,
- */
+*/
 
 #define COMMON_ANODE
 
@@ -66,6 +66,7 @@
 
 boolean match = false;          // initialize card match to false
 boolean programMode = false;	// initialize programming mode to false
+boolean replaceMaster = false;
 
 int successRead;		// Variable integer to keep if we have Successful Read from Reader
 
@@ -82,8 +83,8 @@ byte masterCard[4];		// Stores master card's ID read from EEPROM
 	SS : Pin 10 (Configurable)
 	RST : Pin 9 (Configurable)
 	look MFRC522 Library for
-	other Arduinos' pin configuration 
- */
+	other Arduinos' pin configuration
+*/
 
 #define SS_PIN 10
 #define RST_PIN 9
@@ -107,20 +108,20 @@ void setup() {
   Serial.begin(9600);	 // Initialize serial communications with PC
   SPI.begin();           // MFRC522 Hardware uses SPI protocol
   mfrc522.PCD_Init();    // Initialize MFRC522 Hardware
-  
+
   //If you set Antenna Gain to Max it will increase reading distance
   //mfrc522.PCD_SetAntennaGain(mfrc522.RxGain_max);
-  
-  Serial.println(F("Access Control v3.3"));   // For debugging purposes
+
+  Serial.println(F("Access Control v3.4"));   // For debugging purposes
   ShowReaderDetails();	// Show details of PCD - MFRC522 Card Reader details
 
   //Wipe Code if Button Pressed while setup run (powered on) it wipes EEPROM
   if (digitalRead(wipeB) == LOW) {	// when button pressed pin should get low, button connected to ground
     digitalWrite(redLed, LED_ON);	// Red Led stays on to inform user we are going to wipe
     Serial.println(F("Wipe Button Pressed"));
-    Serial.println(F("You have 5 seconds to Cancel"));
+    Serial.println(F("You have 15 seconds to Cancel"));
     Serial.println(F("This will be remove all records and cannot be undone"));
-    delay(5000);                        // Give user enough time to cancel operation
+    delay(15000);                        // Give user enough time to cancel operation
     if (digitalRead(wipeB) == LOW) {    // If button still be pressed, wipe EEPROM
       Serial.println(F("Starting Wiping EEPROM"));
       for (int x = 0; x < EEPROM.length(); x = x + 1) {    //Loop end of EEPROM address
@@ -151,7 +152,7 @@ void setup() {
   // This also useful to just redefine Master Card
   // You can keep other EEPROM records just write other than 143 to EEPROM address 1
   // EEPROM address 1 should hold magical number which is '143'
-  if (EEPROM.read(1) != 143) {  		
+  if (EEPROM.read(1) != 143) {
     Serial.println(F("No Master Card Defined"));
     Serial.println(F("Scan A PICC to Define as Master Card"));
     do {
@@ -186,6 +187,19 @@ void setup() {
 void loop () {
   do {
     successRead = getID(); 	// sets successRead to 1 when we get read from reader otherwise 0
+    if (digitalRead(wipeB) == LOW) {
+      digitalWrite(redLed, LED_ON);  // Make sure led is off
+      digitalWrite(greenLed, LED_OFF);  // Make sure led is off
+      digitalWrite(blueLed, LED_OFF); // Make sure led is off
+      Serial.println(F("Wipe Button Pressed"));
+      Serial.println(F("Master Card will be Erased! in 10 seconds"));
+      delay(10000);
+      if (digitalRead(wipeB) == LOW) {
+        EEPROM.write(1, 0);                  // Reset Magic Number.
+        Serial.println(F("Restart device to re-program Master Card"));
+        while (1);
+      }
+    }
     if (programMode) {
       cycleLeds();              // Program Mode cycles through RGB waiting to read a new card
     }
@@ -207,16 +221,18 @@ void loop () {
         Serial.println(F("I know this PICC, removing..."));
         deleteID(readCard);
         Serial.println("-----------------------------");
+        Serial.println(F("Scan a PICC to ADD or REMOVE to EEPROM"));
       }
       else {                    // If scanned card is not known add it
         Serial.println(F("I do not know this PICC, adding..."));
         writeID(readCard);
         Serial.println(F("-----------------------------"));
+        Serial.println(F("Scan a PICC to ADD or REMOVE to EEPROM"));
       }
     }
   }
   else {
-    if ( isMaster(readCard) ) {  	// If scanned card's ID matches Master Card's ID enter program mode
+    if ( isMaster(readCard)) {  	// If scanned card's ID matches Master Card's ID enter program mode
       programMode = true;
       Serial.println(F("Hello Master - Entered Program Mode"));
       int count = EEPROM.read(0); 	// Read the first Byte of EEPROM that
@@ -224,7 +240,8 @@ void loop () {
       Serial.print(count);
       Serial.print(F(" record(s) on EEPROM"));
       Serial.println("");
-      Serial.println(F("Scan a PICC to ADD or REMOVE"));
+      Serial.println(F("Scan a PICC to ADD or REMOVE to EEPROM"));
+      Serial.println(F("Scan Master Card again to Exit Program Mode"));
       Serial.println(F("-----------------------------"));
     }
     else {
@@ -283,22 +300,23 @@ int getID() {
 }
 
 void ShowReaderDetails() {
-	// Get the MFRC522 software version
-	byte v = mfrc522.PCD_ReadRegister(mfrc522.VersionReg);
-	Serial.print(F("MFRC522 Software Version: 0x"));
-	Serial.print(v, HEX);
-	if (v == 0x91)
-		Serial.print(F(" = v1.0"));
-	else if (v == 0x92)
-		Serial.print(F(" = v2.0"));
-	else
-		Serial.print(F(" (unknown)"));
-	Serial.println("");
-	// When 0x00 or 0xFF is returned, communication probably failed
-	if ((v == 0x00) || (v == 0xFF)) {
-		Serial.println(F("WARNING: Communication failure, is the MFRC522 properly connected?"));
-		while(true);  // do not go further
-	}
+  // Get the MFRC522 software version
+  byte v = mfrc522.PCD_ReadRegister(mfrc522.VersionReg);
+  Serial.print(F("MFRC522 Software Version: 0x"));
+  Serial.print(v, HEX);
+  if (v == 0x91)
+    Serial.print(F(" = v1.0"));
+  else if (v == 0x92)
+    Serial.print(F(" = v2.0"));
+  else
+    Serial.print(F(" (unknown),probably a chinese clone?"));
+  Serial.println("");
+  // When 0x00 or 0xFF is returned, communication probably failed
+  if ((v == 0x00) || (v == 0xFF)) {
+    Serial.println(F("WARNING: Communication failure, is the MFRC522 properly connected?"));
+    Serial.println(F("SYSTEM HALTED: Check connections."));
+    while (true); // do not go further
+  }
 }
 
 ///////////////////////////////////////// Cycle Leds (Program Mode) ///////////////////////////////////
@@ -344,11 +362,11 @@ void writeID( byte a[] ) {
       EEPROM.write( start + j, a[j] ); 	// Write the array values to EEPROM in the right position
     }
     successWrite();
-	Serial.println(F("Succesfully added ID record to EEPROM"));
+    Serial.println(F("Succesfully added ID record to EEPROM"));
   }
   else {
     failedWrite();
-	Serial.println(F("Failed! There is something wrong with ID or bad EEPROM"));
+    Serial.println(F("Failed! There is something wrong with ID or bad EEPROM"));
   }
 }
 
@@ -356,7 +374,7 @@ void writeID( byte a[] ) {
 void deleteID( byte a[] ) {
   if ( !findID( a ) ) { 		// Before we delete from the EEPROM, check to see if we have this card!
     failedWrite(); 			// If not
-	Serial.println(F("Failed! There is something wrong with ID or bad EEPROM"));
+    Serial.println(F("Failed! There is something wrong with ID or bad EEPROM"));
   }
   else {
     int num = EEPROM.read(0); 	// Get the numer of used spaces, position 0 stores the number of ID cards
@@ -377,7 +395,7 @@ void deleteID( byte a[] ) {
       EEPROM.write( start + j + k, 0);
     }
     successDelete();
-	Serial.println(F("Succesfully removed ID record from EEPROM"));
+    Serial.println(F("Succesfully removed ID record from EEPROM"));
   }
 }
 
@@ -490,5 +508,4 @@ boolean isMaster( byte test[] ) {
   else
     return false;
 }
-
 
