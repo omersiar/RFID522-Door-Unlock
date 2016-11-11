@@ -66,7 +66,6 @@
 
 boolean match = false;          // initialize card match to false
 boolean programMode = false;	// initialize programming mode to false
-boolean replaceMaster = false;
 
 int successRead;		// Variable integer to keep if we have Successful Read from Reader
 
