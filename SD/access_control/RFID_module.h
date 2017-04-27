@@ -7,6 +7,8 @@
 
 typedef struct {String name; bool access;} tag; // Declaration of tag info structure
 
+////////////////////////////////////////////////////////////////////////
+
 class rfid_unit{
 public:
     rfid_unit(MFRC522* my_rfid);

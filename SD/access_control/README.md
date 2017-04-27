@@ -25,7 +25,7 @@ for additional HW by future colaborators.
 INSTALATION REQUIREMENTS:
 
 Arduino IDE:
-(Makefile Builds is more convenient and also available in separate branch)
+(Makefile Builds is more convenient and will be available in separate branch)
 This project has been tested using Arduino IDE v.1.8.0 and NOT any
 other. Please note that the project uses C++11 and therefore an extra
 compiling flag has been included in the file ,,platform.local.txt''.

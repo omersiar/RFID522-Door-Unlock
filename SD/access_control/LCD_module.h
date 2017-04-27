@@ -15,6 +15,8 @@
     #define F(string_literal) string_literal
 #endif
 
+////////////////////////////////////////////////////////////////////////
+
 class display {
 public:
     display(Adafruit_ST7735* lcd);              // Constructor for specific Adafruit Hardware
