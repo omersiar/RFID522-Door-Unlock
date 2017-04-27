@@ -35,8 +35,7 @@ EXTERNAL LIBRARIES:
 All libraries have been packaged as submodules in the folder "./libraries" and refer
 to their original repository. To clone them go to your command line and type:
 
-$ git submodule init
-$ git submodule update
+$ git submodule init && git submodule update
 
 or go to each repo and clone:
 
