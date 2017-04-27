@@ -33,7 +33,12 @@ You may need to update your compiler.
 
 EXTERNAL LIBRARIES:
 All libraries have been packaged as submodules in the folder "./libraries" and refer
-to their original repository on GitHub.
+to their original repository. To clone them go to your command line and type:
+
+$ git submodule init
+$ git submodule update
+
+or go to each repo and clone:
 
 - DS_3231 requires this library:
           https://github.com/SodaqMoja/Sodaq_DS3231
@@ -49,9 +54,6 @@ Please clone this repos and copy them inside your local sketchbook/libraries fol
 (Something like ,,my/path/to/my/sketchbook/libraries/")
 To find the complete path, open Arduino IDE->File->Preferences and look for
 ,,sketchbook location"
-
-After the libraries have been copied you may need to change the libraries
-folder's name in order to compile properly.
 
 USAGE:
 Read HOW_TO_USE.txt
