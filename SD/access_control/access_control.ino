@@ -1,6 +1,6 @@
   /********************************************************************************************
  * RFID-based access control and time records storage into SD card                          *
- * Based on:    See requirements.txt                                                        *
+ * Based on:    See README.md                                                               *
  * Author:      Juan Reyes, Apr, 2017.                                                      *
  * Copyright:   Unlicense -> For more information, please refer to <http://unlicense.org>   *
  * Usage:       See README.md                                                               *
