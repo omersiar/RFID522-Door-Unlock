@@ -1,0 +1,47 @@
+#######################################
+# Syntax Coloring Map for NewSoftSerial
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+Sodaq_DS3231	KEYWORD1
+DateTime	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+second	KEYWORD2
+minute	KEYWORD2
+hour	KEYWORD2
+date	KEYWORD2
+month	KEYWORD2
+year	KEYWORD2
+active	KEYWORD2
+dayOfWeek	KEYWORD2
+get	KEYWORD2
+begin	KEYWORD2
+setDateTime	KEYWORD2
+enableInterrupts	KEYWORD2
+disableInterrupts	KEYWORD2
+clearINTStatus	KEYWORD2
+convertTemperature	KEYWORD2
+getTemperature	KEYWORD2
+now	KEYWORD2
+
+#######################################
+# Instances (KEYWORD3)
+#######################################
+
+rtc	KEYWORD3
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+EverySecond	LITERAL1
+EveryMinute	LITERAL1
+EveryHour	LITERAL1
+EveryMonth	LITERAL1
