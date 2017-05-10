@@ -1,31 +1,6 @@
-Arduino RC522 RFID Access Control
-=======
-July/2014 Omer Siar Baysal
-
---------
-
-Arduino RFID Access Control using a RC522 RFID 
-reader with SPI interface on your Arduino
-
-For now there is 3 version of Access Control
-
-**EEPROM Version**
-
-Storing data on EEPROM, Stable, Basic System
-
-**SD Version - Work In Progress**
-
-Storing data on SD Card, more features will be added like 
-USER management
-Tracking with Real Time Clock
-
-**Embedded System - Work In Progress**
-
-Complete RFID solution with
-Networked Web Interface
-USER management
-Tracking with Real Time Clock
-Cross-Platform Management Application
-
-More info on: 
-http://forum.arduino.cc/index.php?topic=256260
+This project implements an Arduino based access control solution
+including a LCD display, Real Time Clock and time registers on a micro
+SD card. The project has been uploaded as a "ready to compile"
+version.  This means that if your Hardware matches & all requirements
+have been properly installed, you won't need to adjust anything else
+on the code, except from the specific RFID tag's key.
