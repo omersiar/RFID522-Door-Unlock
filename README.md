@@ -1,3 +1,8 @@
+2017 Announcement:
+I am happy to announce new project
+https://github.com/omersiar/esp-rfid
+ESP-RFID Access Control with ESP8266
+
 Arduino RC522 RFID Access Control
 =======
 July/2014 Omer Siar Baysal
