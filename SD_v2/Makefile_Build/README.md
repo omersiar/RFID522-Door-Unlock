@@ -59,7 +59,31 @@ Please clone this repos and copy them inside your local ./libs folder:
 (Something like ,,my/path/to/this/project/libs/")
 
 USAGE:
-Read HOW_TO_USE.txt
+
+1- Go to ,,authorized_keys.h" and modify the NUID of your authorized
+tags (IN DECIMAL FORMAT) as well as the corresponding Names of each
+Tag. More info see the MRFC 522 examples.
+
+2- Open the file ,,pin_layout.h" and follow or modify the proposed
+connections for the HW.
+
+3- Open a terminal and go to the base directory of the Makefile_build i.e.
+
+$ cd /my/path/to/RFID522-Door-Unlock/SD_v2/Makefile_Build
+
+Now compile the source code by typing:
+
+$ make
+
+Finally upload your code to the Arduino Board by typing:
+
+$ make upload
+
+try your RFID cards!
+
+4- Remove the SD card, and read it from a PC, you should find a file
+called ,,records.csv". You can open and further use this file in any
+spreadsheet program such as ,,LibreOffice Calc".
 
 TODOs:
 Implementation for further HW, probably using Polymorphism (Virtual classes)
