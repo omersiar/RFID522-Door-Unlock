@@ -32,7 +32,7 @@ Please check -> https://github.com/sudar/Arduino-Makefile
 
 Update the local Makefile:
 
-A local Makefile has been shipped within this repo, make sure you update the BOARD_TAG, MONITOR_PORT and the include path of ,,Arduino.mk''
+A local Makefile has been shipped within this repo, make sure you update the BOARD_TAG, MONITOR_PORT and the include path of ,,Arduino.mk''.
 Please note that the project uses C++11 and therefore CPPFLAGS is appended in the local Makefile before including Arduino.mk.
 You may need to update your compiler.
 
