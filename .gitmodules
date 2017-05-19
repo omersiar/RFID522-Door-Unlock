@@ -1,27 +1,27 @@
-[submodule "SD/access_control/libraries/Sodaq_DS3231"]
-	path = SD/access_control/libraries/Sodaq_DS3231
+[submodule "SD_v2/access_control/libraries/Sodaq_DS3231"]
+	path = SD_v2/access_control/libraries/Sodaq_DS3231
 	url = https://github.com/SodaqMoja/Sodaq_DS3231.git
-[submodule "SD/access_control/libraries/Adafruit_ST3775"]
-	path = SD/access_control/libraries/Adafruit_ST3775
+[submodule "SD_v2/access_control/libraries/Adafruit_ST3775"]
+	path = SD_v2/access_control/libraries/Adafruit_ST3775
 	url = https://github.com/adafruit/Adafruit-ST7735-Library.git
-[submodule "SD/access_control/libraries/Adafruit_GFX"]
-	path = SD/access_control/libraries/Adafruit_GFX
+[submodule "SD_v2/access_control/libraries/Adafruit_GFX"]
+	path = SD_v2/access_control/libraries/Adafruit_GFX
 	url = https://github.com/adafruit/Adafruit-GFX-Library.git
-[submodule "SD/access_control/libraries/MFRC522"]
-	path = SD/access_control/libraries/MFRC522
+[submodule "SD_v2/access_control/libraries/MFRC522"]
+	path = SD_v2/access_control/libraries/MFRC522
 	url = https://github.com/miguelbalboa/rfid.git
-[submodule "SD_Makefile_Build/access_control/libraries/Sodaq_DS3231"]
-	path = SD_Makefile_Build/access_control/libraries/Sodaq_DS3231
+[submodule "SD_v2/Makefile_Build/access_control/libraries/Sodaq_DS3231"]
+	path = SD_v2/Makefile_Build/access_control/libraries/Sodaq_DS3231
 	url = https://github.com/SodaqMoja/Sodaq_DS3231.git
-[submodule "SD_Makefile_Build/access_control/libraries/Adafruit_ST3775"]
-	path = SD_Makefile_Build/access_control/libraries/Adafruit_ST3775
+[submodule "SD_v2/Makefile_Build/access_control/libraries/Adafruit_ST3775"]
+	path = SD_v2/Makefile_Build/access_control/libraries/Adafruit_ST3775
 	url = https://github.com/adafruit/Adafruit-ST7735-Library.git
-[submodule "SD_Makefile_Build/access_control/libraries/Adafruit_GFX"]
-	path = SD_Makefile_Build/access_control/libraries/Adafruit_GFX
+[submodule "SD_v2/Makefile_Build/access_control/libraries/Adafruit_GFX"]
+	path = SD_v2/Makefile_Build/access_control/libraries/Adafruit_GFX
 	url = https://github.com/adafruit/Adafruit-GFX-Library.git
-[submodule "SD_Makefile_Build/access_control/libraries/MFRC522"]
-	path = SD_Makefile_Build/access_control/libraries/MFRC522
+[submodule "SD_v2/Makefile_Build/access_control/libraries/MFRC522"]
+	path = SD_v2/Makefile_Build/access_control/libraries/MFRC522
 	url = https://github.com/miguelbalboa/rfid.git
-[submodule "SD_Makefile_Build/access_control/libraries/MFRC522"]
-	path = SD_Makefile_Build/libs/SPI
+[submodule "SD_v2/Makefile_Build/access_control/libraries/MFRC522"]
+	path = SD_v2/Makefile_Build/libs/SPI
 	url = https://github.com/PaulStoffregen/SPI.git
