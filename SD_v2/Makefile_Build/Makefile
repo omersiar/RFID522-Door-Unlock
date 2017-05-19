@@ -4,5 +4,5 @@ ARDUINO_LIBS = Wire SD SPI Sodaq_DS3231/src Adafruit_GFX Adafruit_ST3775 MFRC522
 
 LOCAL_CPP_SRCS  ?= $(wildcard ./src/*.cpp)
 CPPFLAGS      += -std=c++11 -I./inc/ -I./libs/
-USER_LIB_PATH += /home/rocadura/Documents/Arduino/ACTR/libs
+USER_LIB_PATH += ./libs
 include /usr/share/arduino/Arduino.mk
