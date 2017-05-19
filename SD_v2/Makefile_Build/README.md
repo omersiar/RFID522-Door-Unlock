@@ -31,11 +31,13 @@ After you have installed the packages you may need to update your ~/.bashrc file
 Please check -> https://github.com/sudar/Arduino-Makefile
 
 Update the local Makefile:
+
 A local Makefile has been shipped within this repo, make sure you update the BOARD_TAG, MONITOR_PORT and the include path of ,,Arduino.mk''
 Please note that the project uses C++11 and therefore CPPFLAGS is appended in the local Makefile before including Arduino.mk.
 You may need to update your compiler.
 
 EXTERNAL LIBRARIES:
+
 All libraries have been packaged as submodules in the folder "./libs" and refer
 to their original repository. To clone them go to your command line and type:
 
