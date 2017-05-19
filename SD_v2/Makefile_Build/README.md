@@ -62,9 +62,9 @@ USAGE:
 
 1- Go to ,,authorized_keys.h" and modify the NUID of your authorized
 tags (IN DECIMAL FORMAT) as well as the corresponding Names of each
-Tag. More info see the MRFC 522 examples.
+Tag. More info about how to read a TAG NUID, see the MRFC 522 examples.
 
-2- Open the file ,,pin_layout.h" and follow or modify the proposed
+2- Open the file ,,./inc/pin_layout.h" and follow or modify the proposed
 connections for the HW.
 
 3- Open a terminal and go to the base directory of the Makefile_build i.e.
