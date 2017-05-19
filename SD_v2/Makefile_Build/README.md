@@ -18,10 +18,10 @@ for additional HW by future colaborators.
 INSTALATION REQUIREMENTS:
 
 arduino-core:
-Go to the command line and type
+Go to the command line and type:
 $sudo apt-get install arduino-core
 arduino-mk:
-Go to the command line and type
+Go to the command line and type:
 $sudo apt-get install arduino-mk
 After you have installed the packages you may need to update your ~/.bashrc file with some new ENV variables.
 Please check -> https://github.com/sudar/Arduino-Makefile
