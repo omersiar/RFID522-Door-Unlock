@@ -1,0 +1,19 @@
+(SEE README.md->INSTALATION REQUIREMENTS).
+
+HOW TO USE:
+
+1- Go to ,,authorized_keys.h" and modify the NUID of your authorized
+tags (IN DECIMAL FORMAT) as well as the corresponding Names of each
+Tag. More info about how to read a TAG NUID, see the MRFC 522 examples.
+
+2- Open the file ,,pin_layout.h" and follow or modify the proposed
+connections for the HW.
+
+3- Open Your Arduino IDE v.1.8.0 (not tested in any other), verify,
+upload and try your cards!
+
+4- Remove the SD card, and read it from a PC, you should find a file
+called ,,records.csv". You can open and further use this file in any
+spreadsheet program such as ,,LibreOffice Calc".
+
+QUESTIONS & BUGS report to the main repo
